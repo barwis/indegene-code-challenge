@@ -61,6 +61,7 @@ export default defineConfig([
             "vitest.config.ts",
             "vitest.setup.ts",
           ],
+          packageDir: [__dirname],
         },
       ],
       "import/no-duplicates": "error",
