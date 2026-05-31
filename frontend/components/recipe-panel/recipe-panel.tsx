@@ -1,5 +1,5 @@
 import type { components } from "@/types/api";
-import { RecipeHeader } from "./RecipeHeader";
+import { RecipeHeader } from "./recipe-header";
 
 type RecipeContext = components["schemas"]["RecipeContext"];
 

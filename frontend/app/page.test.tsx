@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import { vi } from "vitest";
 import * as useRecipeUploadModule from "./hooks/use-recipe-upload";
-import renderWithProviders from "./test-utils/renderWithProviders";
+import renderWithProviders from "./test-utils/render-with-providers";
 import Home from "./page";
 
 vi.mock("./hooks/use-recipe-upload");
@@ -24,6 +24,7 @@ describe("Home", () => {
     it("should render without crashing", () => {
       vi.spyOn(useRecipeUploadModule, "useRecipeUpload").mockReturnValue({
         state: noRecipeState,
+        setState: vi.fn(),
         isLoading: false,
         error: null,
         handleUpload: vi.fn(),
@@ -36,6 +37,7 @@ describe("Home", () => {
     it("should show the upload screen when no recipe is loaded", () => {
       vi.spyOn(useRecipeUploadModule, "useRecipeUpload").mockReturnValue({
         state: noRecipeState,
+        setState: vi.fn(),
         isLoading: false,
         error: null,
         handleUpload: vi.fn(),
@@ -52,6 +54,7 @@ describe("Home", () => {
     it("should show the recipe title when a recipe is loaded", () => {
       vi.spyOn(useRecipeUploadModule, "useRecipeUpload").mockReturnValue({
         state: withRecipeState,
+        setState: vi.fn(),
         isLoading: false,
         error: null,
         handleUpload: vi.fn(),

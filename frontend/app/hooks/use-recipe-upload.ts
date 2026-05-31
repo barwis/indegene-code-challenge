@@ -1,7 +1,7 @@
 import { useCoAgent } from "@copilotkit/react-core";
 import { useState } from "react";
 import type { components } from "@/types/api";
-import { recipeContextFixture } from "@/domain/__fixtures__/recipeContext";
+import { recipeContextFixture } from "@/domain/__fixtures__/recipe-context";
 
 type RecipeContext = components["schemas"]["RecipeContext"];
 
@@ -15,6 +15,7 @@ const INITIAL_STATE: RecipeContext = {
 
 export type UseRecipeUploadReturn = {
   state: RecipeContext;
+  setState: (next: RecipeContext) => void;
   isLoading: boolean;
   error: string | null;
   handleUpload: (file: File) => Promise<void>;
@@ -63,5 +64,5 @@ export const useRecipeUpload = (): UseRecipeUploadReturn => {
 
   const handleFixture = () => setState(recipeContextFixture);
 
-  return { state, isLoading, error, handleUpload, handleFixture };
+  return { state, setState, isLoading, error, handleUpload, handleFixture };
 };
