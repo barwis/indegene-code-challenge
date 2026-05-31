@@ -1,7 +1,8 @@
 @import "tailwindcss";
+@plugin "tailwindcss-animate";
 
 @theme {
-  --color-accent-50:  oklch(0.977 0.008 41.5); /* canvas */
+  --color-accent-50:  oklch(0.977 0.008 76); /* canvas */
   --color-accent-100: oklch(0.940 0.025 41.5);
   --color-accent-200: oklch(0.880 0.045 41.5);
   --color-accent-300: oklch(0.780 0.070 41.5);

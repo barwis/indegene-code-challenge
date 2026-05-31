@@ -20,7 +20,9 @@
     ],
     "types": ["vitest/globals"],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@components": ["./components/index.ts"],
+      "@components/*": ["./components/*"]
     }
   },
   "include": [
