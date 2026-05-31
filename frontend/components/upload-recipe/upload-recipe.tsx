@@ -6,12 +6,14 @@ export type UploadRecipeProps = {
   onUpload: (file: File) => void;
   isLoading?: boolean;
   error?: string | null;
+  onUseFixture?: () => void;
 };
 
 export const UploadRecipe = ({
   onUpload,
   isLoading = false,
   error = null,
+  onUseFixture,
 }: UploadRecipeProps) => {
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -107,6 +109,16 @@ export const UploadRecipe = ({
           </>
         )}
       </label>
+
+      {onUseFixture && !isLoading && (
+        <button
+          type="button"
+          className="text-sm text-stone-400 underline hover:text-accent-600 transition-colors"
+          onClick={onUseFixture}
+        >
+          or load a sample recipe
+        </button>
+      )}
 
       {error && (
         <p role="alert" className="max-w-md text-center text-sm text-red-600">

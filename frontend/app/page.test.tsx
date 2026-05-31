@@ -27,6 +27,7 @@ describe("Home", () => {
         isLoading: false,
         error: null,
         handleUpload: vi.fn(),
+        handleFixture: vi.fn(),
       });
       renderWithProviders(<Home />);
       expect(screen.getByRole("main")).toBeInTheDocument();
@@ -38,6 +39,7 @@ describe("Home", () => {
         isLoading: false,
         error: null,
         handleUpload: vi.fn(),
+        handleFixture: vi.fn(),
       });
       renderWithProviders(<Home />);
       expect(
@@ -53,6 +55,7 @@ describe("Home", () => {
         isLoading: false,
         error: null,
         handleUpload: vi.fn(),
+        handleFixture: vi.fn(),
       });
       renderWithProviders(<Home />);
       expect(
