@@ -44,3 +44,4 @@ frontend/coverage/
 frontend/.next/
 frontend/next-env.d.ts
 frontend/tsconfig.tsbuildinfo
+frontend/types/api.d.ts
