@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { PropsWithChildren } from "react";
+import CopilotKitProvider from "./copilotkit-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -10,7 +11,9 @@ export const metadata: Metadata = {
 
 const RootLayout = ({ children }: PropsWithChildren) => (
   <html lang="en" className="h-full">
-    <body className="flex h-full flex-col">{children}</body>
+    <body className="flex h-full flex-col">
+      <CopilotKitProvider>{children}</CopilotKitProvider>
+    </body>
   </html>
 );
 

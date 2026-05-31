@@ -2,4 +2,3 @@
 out
 build
 node_modules
-src/domain/api.d.ts
