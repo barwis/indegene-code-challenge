@@ -2,16 +2,16 @@
 @plugin "tailwindcss-animate";
 
 @theme {
-  --color-accent-50:  oklch(0.977 0.008 76); /* canvas */
-  --color-accent-100: oklch(0.940 0.025 41.5);
-  --color-accent-200: oklch(0.880 0.045 41.5);
-  --color-accent-300: oklch(0.780 0.070 41.5);
-  --color-accent-400: oklch(0.670 0.090 41.5);
-  --color-accent-500: oklch(0.550 0.111 41.5); /* terracotta - #a85a3c */
+  --color-accent-50: oklch(0.955 0 0); /* canvas */
+  --color-accent-100: oklch(0.94 0.025 41.5);
+  --color-accent-200: oklch(0.88 0.045 41.5);
+  --color-accent-300: oklch(0.78 0.07 41.5);
+  --color-accent-400: oklch(0.67 0.09 41.5);
+  --color-accent-500: oklch(0.55 0.111 41.5); /* terracotta - #a85a3c */
   --color-accent-600: oklch(0.465 0.105 41.5);
-  --color-accent-700: oklch(0.379 0.090 41.5);
-  --color-accent-800: oklch(0.294 0.070 41.5);
-  --color-accent-900: oklch(0.209 0.050 41.5);
+  --color-accent-700: oklch(0.379 0.09 41.5);
+  --color-accent-800: oklch(0.294 0.07 41.5);
+  --color-accent-900: oklch(0.209 0.05 41.5);
 
   --font-heading: "Lora", Georgia, serif;
   --font-body: "Nunito", system-ui, sans-serif;
