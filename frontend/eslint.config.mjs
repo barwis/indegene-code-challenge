@@ -58,6 +58,7 @@ export default defineConfig([
           devDependencies: [
             "**/*.test.ts",
             "**/*.test.tsx",
+            "**/test-utils/**",
             "vitest.config.ts",
             "vitest.setup.ts",
           ],
