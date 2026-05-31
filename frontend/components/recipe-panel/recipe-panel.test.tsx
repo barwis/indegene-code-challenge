@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { recipeContextFixture } from "@/domain/__fixtures__/recipeContext";
-import { RecipePanel } from "./RecipePanel";
+import { recipeContextFixture } from "@/domain/__fixtures__/recipe-context";
+import { RecipePanel } from "./recipe-panel";
 
 describe("RecipePanel", () => {
   it("renders the recipe title from the fixture", () => {

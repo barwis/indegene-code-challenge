@@ -158,7 +158,9 @@ describe("useRecipeUpload", () => {
   describe("handleFixture", () => {
     it("should call setState with the fixture recipe context", () => {
       const { result } = renderHook(() => useRecipeUpload());
-      result.current.handleFixture();
+      act(() => {
+        result.current.handleFixture();
+      });
       expect(mockSetState).toHaveBeenCalledOnce();
       const calledWith = mockSetState.mock.calls[0][0] as RecipeContext;
       expect(calledWith.recipe?.title).toBe("Spaghetti al Pomodoro");
