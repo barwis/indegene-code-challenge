@@ -59,6 +59,31 @@ describe("UploadRecipe", () => {
     });
   });
 
+  describe("fixture shortcut", () => {
+    it("should show the fixture button when onUseFixture is provided", () => {
+      render(<UploadRecipe onUpload={vi.fn()} onUseFixture={vi.fn()} />);
+      expect(screen.getByRole("button", { name: /load a sample recipe/i })).toBeInTheDocument();
+    });
+
+    it("should not show the fixture button when onUseFixture is absent", () => {
+      render(<UploadRecipe onUpload={vi.fn()} />);
+      expect(screen.queryByRole("button", { name: /load a sample recipe/i })).not.toBeInTheDocument();
+    });
+
+    it("should not show the fixture button while loading", () => {
+      render(<UploadRecipe onUpload={vi.fn()} onUseFixture={vi.fn()} isLoading />);
+      expect(screen.queryByRole("button", { name: /load a sample recipe/i })).not.toBeInTheDocument();
+    });
+
+    it("should call onUseFixture when the button is clicked", async () => {
+      const onUseFixture = vi.fn();
+      const user = userEvent.setup();
+      render(<UploadRecipe onUpload={vi.fn()} onUseFixture={onUseFixture} />);
+      await user.click(screen.getByRole("button", { name: /load a sample recipe/i }));
+      expect(onUseFixture).toHaveBeenCalledOnce();
+    });
+  });
+
   describe("error state", () => {
     it("should show an alert with the error message", () => {
       render(<UploadRecipe onUpload={vi.fn()} error="Could not parse recipe" />);

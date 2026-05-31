@@ -31,6 +31,8 @@ beforeEach(() => {
   vi.mocked(useCoAgent).mockReturnValue({
     state: noRecipeState,
     setState: mockSetState,
+    stop: vi.fn(),
+    run: vi.fn(),
   } as unknown as ReturnType<typeof useCoAgent>);
   vi.stubGlobal(
     "fetch",
@@ -150,6 +152,16 @@ describe("useRecipeUpload", () => {
         await result.current.handleUpload(new File(["doc"], "notes.docx", { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }));
       });
       expect(result.current.isLoading).toBe(false);
+    });
+  });
+
+  describe("handleFixture", () => {
+    it("should call setState with the fixture recipe context", () => {
+      const { result } = renderHook(() => useRecipeUpload());
+      result.current.handleFixture();
+      expect(mockSetState).toHaveBeenCalledOnce();
+      const calledWith = mockSetState.mock.calls[0][0] as RecipeContext;
+      expect(calledWith.recipe?.title).toBe("Spaghetti al Pomodoro");
     });
   });
 
