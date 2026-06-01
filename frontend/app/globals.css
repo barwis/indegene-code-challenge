@@ -1,5 +1,11 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
+@plugin "@tailwindcss/typography";
+
+@utility stagger {
+  animation-delay: var(--stagger-delay, 0ms);
+  animation-duration: var(--stagger-duration, 280ms);
+}
 
 @theme {
   --color-accent-50: oklch(0.955 0 0); /* canvas */
@@ -16,4 +22,51 @@
   --font-heading: "Lora", Georgia, serif;
   --font-body: "Nunito", system-ui, sans-serif;
   --default-font-family: var(--font-body);
+
+  --ease-stagger: cubic-bezier(0.2, 0.6, 0.35, 1);
+  --animate-slide-left: slide-left 280ms var(--ease-stagger) both;
+  --animate-slide-right: slide-right 280ms var(--ease-stagger) both;
+  --animate-slide-up: slide-up 280ms var(--ease-stagger) both;
+  --animate-slide-down: slide-down 280ms var(--ease-stagger) both;
+
+  @keyframes slide-left {
+    from {
+      opacity: 0;
+      transform: translateX(1rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @keyframes slide-right {
+    from {
+      opacity: 0;
+      transform: translateX(-1rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes slide-down {
+    from {
+      opacity: 0;
+      transform: translateY(-0.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }

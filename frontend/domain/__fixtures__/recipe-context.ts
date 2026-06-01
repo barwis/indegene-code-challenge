@@ -70,7 +70,8 @@ export const recipeContextFixture: RecipeContext = {
     steps: [
       {
         step_number: 1,
-        instruction: "Bring a large pot of water to a boil. Season generously with salt.",
+        instruction:
+          "Bring a large pot of water to a boil. Season generously with salt.",
         duration_minutes: 10,
         timer_label: "Boil water",
         requires_attention: false,
@@ -78,7 +79,8 @@ export const recipeContextFixture: RecipeContext = {
       },
       {
         step_number: 2,
-        instruction: "Heat olive oil in a wide pan over medium heat. Add garlic and cook until golden and fragrant, about 1 minute.",
+        instruction:
+          "Heat olive oil in a wide pan over medium heat. Add garlic and cook until golden and fragrant, about 1 minute.",
         duration_minutes: 1,
         timer_label: "Cook garlic",
         requires_attention: true,
@@ -86,7 +88,8 @@ export const recipeContextFixture: RecipeContext = {
       },
       {
         step_number: 3,
-        instruction: "Add crushed tomatoes to the pan. Simmer over medium-low heat for 15 minutes, stirring occasionally.",
+        instruction:
+          "Add crushed tomatoes to the pan. Simmer over medium-low heat for 15 minutes, stirring occasionally.",
         duration_minutes: 15,
         timer_label: "Simmer sauce",
         requires_attention: false,
@@ -94,7 +97,8 @@ export const recipeContextFixture: RecipeContext = {
       },
       {
         step_number: 4,
-        instruction: "Cook spaghetti in the boiling water until al dente, 8-10 minutes. Reserve a cup of pasta water before draining.",
+        instruction:
+          "Cook spaghetti in the boiling water until al dente, 8-10 minutes. Reserve a cup of pasta water before draining.",
         duration_minutes: 9,
         timer_label: "Cook pasta",
         requires_attention: false,
@@ -102,7 +106,8 @@ export const recipeContextFixture: RecipeContext = {
       },
       {
         step_number: 5,
-        instruction: "Drain the pasta and toss it in the sauce over low heat for 1 minute. Add a splash of pasta water if needed. Finish with torn basil.",
+        instruction:
+          "Drain the pasta and toss it in the sauce over low heat for 1 minute. Add a splash of pasta water if needed. Finish with torn basil.",
         duration_minutes: 1,
         timer_label: null,
         requires_attention: false,

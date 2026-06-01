@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useRecipeContext } from "@context/recipe-context";
+import { AnimatedNode } from "@components";
 
 export const UploadRecipe = () => {
-  const { handleUpload, handleFixture, isLoading, error, resetUpload } = useRecipeContext();
+  const { handleUpload, handleFixture, isLoading, error, resetUpload } =
+    useRecipeContext();
   const [isDragOver, setIsDragOver] = useState(false);
   const [fileInputKey, setFileInputKey] = useState(0);
   const showFixture = process.env.NODE_ENV !== "production";
@@ -23,27 +25,45 @@ export const UploadRecipe = () => {
 
   const dropZoneClass = [
     "flex w-full max-w-md cursor-pointer flex-col items-center gap-5 rounded-2xl border-2 border-dashed p-10 transition-colors",
-    isDragOver ? "border-accent-500 bg-accent-100" : "border-stone-400 hover:border-accent-500",
+    isDragOver
+      ? "border-accent-500 bg-accent-100"
+      : "border-stone-400 hover:border-accent-500",
     isLoading ? "pointer-events-none opacity-60" : "",
-  ].filter(Boolean).join(" ");
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <main className="flex h-full flex-col items-center justify-center gap-8 p-8 animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col items-center gap-3 text-center">
-        <h1 className="font-heading text-4xl font-semibold text-accent-700">
+    <main className="flex h-full flex-col items-center justify-center gap-8 p-8 ">
+      <div className="flex flex-col items-center gap-4 text-center">
+        <AnimatedNode
+          direction="slide-up"
+          duration={600}
+          delay={100}
+          as="h1"
+          className="font-heading text-4xl font-semibold text-accent-700"
+        >
           Recipe Companion
-        </h1>
-        <p className="max-w-xs text-stone-900">
-          Upload a recipe and chat with a cooking assistant, hands-free in the
-          kitchen.
-        </p>
+        </AnimatedNode>
+        <AnimatedNode direction="slide-up" duration={600} delay={250}>
+          <p className="max-w-xs text-stone-900">
+            Upload a recipe and chat with a cooking assistant, hands-free in the
+            kitchen.
+          </p>
+        </AnimatedNode>
       </div>
-
-      <label
+      <AnimatedNode
+        direction="slide-up"
+        duration={600}
+        delay={400}
+        as="label"
         htmlFor="recipe-file"
         className={dropZoneClass}
         onDrop={handleDrop}
-        onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragOver(true);
+        }}
         onDragLeave={() => setIsDragOver(false)}
       >
         <input
@@ -97,28 +117,39 @@ export const UploadRecipe = () => {
                 d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
               />
             </svg>
-            <p className="text-stone-600">Drop your recipe here or click to browse</p>
+            <p className="text-stone-600">
+              Drop your recipe here or click to browse
+            </p>
             <p className="text-sm text-stone-700">PDF or plain text</p>
           </>
         )}
-      </label>
-
+      </AnimatedNode>
       {showFixture && !isLoading && (
-        <button
+        <AnimatedNode
+          as="button"
+          direction="slide-up"
+          duration={600}
+          delay={550}
           type="button"
           className="text-sm text-stone-400 underline hover:text-accent-600 transition-colors"
           onClick={handleFixture}
         >
           or load a sample recipe
-        </button>
+        </AnimatedNode>
       )}
 
       {error && (
-        <div role="alert" className="flex max-w-md flex-col items-center gap-3 text-center">
+        <div
+          role="alert"
+          className="flex max-w-md flex-col items-center gap-3 text-center"
+        >
           <p className="text-sm text-red-600">{error}</p>
           <button
             type="button"
-            onClick={() => { resetUpload(); setFileInputKey((k) => k + 1); }}
+            onClick={() => {
+              resetUpload();
+              setFileInputKey((k) => k + 1);
+            }}
             className="rounded-xl border border-red-300 bg-red-50 px-4 py-2 text-sm font-medium text-red-700"
           >
             Try again

@@ -19,7 +19,7 @@ const HomeContent = () => {
   if (recipe) {
     return (
       <div className="flex h-full">
-        <div className="flex flex-[1.8] flex-col overflow-y-auto bg-accent-50">
+        <div className="flex flex-[1.8] flex-col overflow-hidden bg-accent-50 motion-safe:animate-in motion-safe:fade-in-0 duration-500">
           <RecipeHeader recipe={recipe} />
           <Tabs ariaLabel="Recipe sections">
             <Tab tabId="ingredients" tabTitle="Ingredients">
