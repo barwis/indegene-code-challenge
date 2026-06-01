@@ -2,6 +2,7 @@ import { useCoAgent } from "@copilotkit/react-core";
 import { useState } from "react";
 import type { components } from "@/types/api";
 import { recipeContextFixture } from "@/domain/__fixtures__/recipe-context";
+import { toggleCheckedIngredient } from "@/domain/ingredients";
 
 type RecipeContext = components["schemas"]["RecipeContext"];
 
@@ -20,6 +21,7 @@ export type UseRecipeUploadReturn = {
   error: string | null;
   handleUpload: (file: File) => Promise<void>;
   handleFixture: () => void;
+  handleToggleIngredient: (name: string) => void;
 };
 
 export const useRecipeUpload = (): UseRecipeUploadReturn => {
@@ -64,5 +66,15 @@ export const useRecipeUpload = (): UseRecipeUploadReturn => {
 
   const handleFixture = () => setState(recipeContextFixture);
 
-  return { state, setState, isLoading, error, handleUpload, handleFixture };
+  const handleToggleIngredient = (name: string) => {
+    setState({
+      ...state,
+      checked_ingredients: toggleCheckedIngredient(
+        state.checked_ingredients ?? [],
+        name,
+      ),
+    });
+  };
+
+  return { state, setState, isLoading, error, handleUpload, handleFixture, handleToggleIngredient };
 };

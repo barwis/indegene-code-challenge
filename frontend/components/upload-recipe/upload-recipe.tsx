@@ -1,32 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import { useRecipeUpload } from "@/app/hooks/use-recipe-upload";
 
-export type UploadRecipeProps = {
-  onUpload: (file: File) => void;
-  isLoading?: boolean;
-  error?: string | null;
-  onUseFixture?: () => void;
-};
-
-export const UploadRecipe = ({
-  onUpload,
-  isLoading = false,
-  error = null,
-  onUseFixture,
-}: UploadRecipeProps) => {
+export const UploadRecipe = () => {
+  const { handleUpload, handleFixture, isLoading, error } = useRecipeUpload();
   const [isDragOver, setIsDragOver] = useState(false);
+  const showFixture = process.env.NODE_ENV !== "production";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) onUpload(file);
+    if (file) handleUpload(file);
   };
 
   const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     setIsDragOver(false);
     const file = e.dataTransfer.files[0];
-    if (file) onUpload(file);
+    if (file) handleUpload(file);
   };
 
   const dropZoneClass = [
@@ -110,11 +101,11 @@ export const UploadRecipe = ({
         )}
       </label>
 
-      {onUseFixture && !isLoading && (
+      {showFixture && !isLoading && (
         <button
           type="button"
           className="text-sm text-stone-400 underline hover:text-accent-600 transition-colors"
-          onClick={onUseFixture}
+          onClick={handleFixture}
         >
           or load a sample recipe
         </button>

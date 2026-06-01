@@ -63,4 +63,16 @@ describe("RecipeHeader", () => {
     render(<RecipeHeader recipe={{ ...recipe, prep_time_minutes: null }} />);
     expect(screen.queryByText(/min\s*prep/i)).not.toBeInTheDocument();
   });
+
+  it("renders the recipe description when present", () => {
+    render(<RecipeHeader recipe={recipe} />);
+    expect(
+      screen.getByText(/a classic italian pasta/i),
+    ).toBeInTheDocument();
+  });
+
+  it("omits the description paragraph when description is null", () => {
+    render(<RecipeHeader recipe={{ ...recipe, description: null }} />);
+    expect(screen.queryByText(/a classic italian pasta/i)).not.toBeInTheDocument();
+  });
 });

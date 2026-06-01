@@ -4,7 +4,7 @@ import { RecipePanel, UploadRecipe } from "@components";
 import { useRecipeUpload } from "./hooks/use-recipe-upload";
 
 const Home = () => {
-  const { state, isLoading, error, handleUpload, handleFixture } = useRecipeUpload();
+  const { state } = useRecipeUpload();
 
   if (state.recipe) {
     return (
@@ -17,14 +17,7 @@ const Home = () => {
     );
   }
 
-  return (
-    <UploadRecipe
-      onUpload={handleUpload}
-      isLoading={isLoading}
-      error={error}
-      onUseFixture={process.env.NODE_ENV !== "production" ? handleFixture : undefined}
-    />
-  );
+  return <UploadRecipe />;
 };
 
 export default Home;

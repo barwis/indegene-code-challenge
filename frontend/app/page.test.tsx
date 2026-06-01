@@ -6,43 +6,26 @@ import Home from "./page";
 
 vi.mock("./hooks/use-recipe-upload");
 
-const noRecipeState = { current_step: 0, cooking_started: false };
-
-const withRecipeState = {
-  ...noRecipeState,
-  recipe: {
-    title: "Spaghetti al Pomodoro",
-    servings: 4,
-    difficulty: "easy" as const,
-    ingredients: [],
-    steps: [],
-  },
+const baseHook: ReturnType<typeof useRecipeUploadModule.useRecipeUpload> = {
+  state: { current_step: 0, cooking_started: false },
+  setState: vi.fn(),
+  isLoading: false,
+  error: null,
+  handleUpload: vi.fn(),
+  handleFixture: vi.fn(),
+  handleToggleIngredient: vi.fn(),
 };
 
 describe("Home", () => {
   describe("upload view", () => {
     it("should render without crashing", () => {
-      vi.spyOn(useRecipeUploadModule, "useRecipeUpload").mockReturnValue({
-        state: noRecipeState,
-        setState: vi.fn(),
-        isLoading: false,
-        error: null,
-        handleUpload: vi.fn(),
-        handleFixture: vi.fn(),
-      });
+      vi.spyOn(useRecipeUploadModule, "useRecipeUpload").mockReturnValue(baseHook);
       renderWithProviders(<Home />);
       expect(screen.getByRole("main")).toBeInTheDocument();
     });
 
     it("should show the upload screen when no recipe is loaded", () => {
-      vi.spyOn(useRecipeUploadModule, "useRecipeUpload").mockReturnValue({
-        state: noRecipeState,
-        setState: vi.fn(),
-        isLoading: false,
-        error: null,
-        handleUpload: vi.fn(),
-        handleFixture: vi.fn(),
-      });
+      vi.spyOn(useRecipeUploadModule, "useRecipeUpload").mockReturnValue(baseHook);
       renderWithProviders(<Home />);
       expect(
         screen.getByRole("heading", { name: /recipe companion/i }),
@@ -53,12 +36,17 @@ describe("Home", () => {
   describe("recipe view", () => {
     it("should show the recipe title when a recipe is loaded", () => {
       vi.spyOn(useRecipeUploadModule, "useRecipeUpload").mockReturnValue({
-        state: withRecipeState,
-        setState: vi.fn(),
-        isLoading: false,
-        error: null,
-        handleUpload: vi.fn(),
-        handleFixture: vi.fn(),
+        ...baseHook,
+        state: {
+          ...baseHook.state,
+          recipe: {
+            title: "Spaghetti al Pomodoro",
+            servings: 4,
+            difficulty: "easy" as const,
+            ingredients: [],
+            steps: [],
+          },
+        },
       });
       renderWithProviders(<Home />);
       expect(
