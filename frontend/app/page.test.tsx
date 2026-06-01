@@ -1,10 +1,19 @@
 import { screen } from "@testing-library/react";
 import { vi } from "vitest";
+import { useCopilotChatInternal } from "@copilotkit/react-core";
 import * as useRecipeUploadModule from "@hooks/use-recipe-upload";
 import renderWithProviders from "@test-utils/render-with-providers";
 import Home from "./page";
 
 vi.mock("./hooks/use-recipe-upload");
+
+beforeEach(() => {
+  vi.mocked(useCopilotChatInternal).mockReturnValue({
+    messages: [],
+    sendMessage: vi.fn(),
+    isLoading: false,
+  } as unknown as ReturnType<typeof useCopilotChatInternal>);
+});
 
 const baseHook: ReturnType<typeof useRecipeUploadModule.useRecipeUpload> = {
   state: { current_step: 0, cooking_started: false },

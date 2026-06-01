@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ChatPanel,
   RecipeHeader,
   Tabs,
   Tab,
@@ -28,7 +29,9 @@ const Home = () => {
             </Tab>
           </Tabs>
         </div>
-        <div className="flex flex-1 flex-col border-l border-stone-200 bg-stone-100" />
+        <div className="flex flex-1 flex-col border-l border-stone-200 bg-stone-100">
+          <ChatPanel />
+        </div>
       </div>
     );
   }
