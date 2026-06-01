@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useRecipeContext } from "@context/recipe-context";
 
 export const UploadRecipe = () => {
-  const { handleUpload, handleFixture, isLoading, error } = useRecipeContext();
+  const { handleUpload, handleFixture, isLoading, error, resetUpload } = useRecipeContext();
   const [isDragOver, setIsDragOver] = useState(false);
+  const [fileInputKey, setFileInputKey] = useState(0);
   const showFixture = process.env.NODE_ENV !== "production";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,6 +47,7 @@ export const UploadRecipe = () => {
         onDragLeave={() => setIsDragOver(false)}
       >
         <input
+          key={fileInputKey}
           id="recipe-file"
           name="recipe-file"
           type="file"
@@ -112,9 +114,16 @@ export const UploadRecipe = () => {
       )}
 
       {error && (
-        <p role="alert" className="max-w-md text-center text-sm text-red-600">
-          {error}
-        </p>
+        <div role="alert" className="flex max-w-md flex-col items-center gap-3 text-center">
+          <p className="text-sm text-red-600">{error}</p>
+          <button
+            type="button"
+            onClick={() => { resetUpload(); setFileInputKey((k) => k + 1); }}
+            className="rounded-xl border border-red-300 bg-red-50 px-4 py-2 text-sm font-medium text-red-700"
+          >
+            Try again
+          </button>
+        </div>
       )}
     </main>
   );

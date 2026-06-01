@@ -91,14 +91,19 @@ const ChatMessageList = ({ messages, isLoading }: ChatMessageListProps) => {
             key={msg.id}
             className={`flex ${isUser ? "justify-end" : "justify-start"}`}
           >
-            <div
-              className={
-                isUser
-                  ? "max-w-[80%] rounded-2xl bg-accent-500 px-4 py-3 text-white"
-                  : "max-w-[80%] rounded-2xl bg-stone-200 px-4 py-3 text-stone-900"
-              }
-            >
-              {msg.content as string}
+            <div className={`flex flex-col gap-1 ${isUser ? "items-end" : "items-start"}`}>
+              <div
+                className={
+                  isUser
+                    ? "max-w-[80%] rounded-2xl bg-accent-500 px-4 py-3 text-white"
+                    : "max-w-[80%] rounded-2xl bg-stone-200 px-4 py-3 text-stone-900"
+                }
+              >
+                {msg.content as string}
+              </div>
+              {isUser && msg.failed && (
+                <span className="text-xs text-red-500">Not sent</span>
+              )}
             </div>
           </div>
         );

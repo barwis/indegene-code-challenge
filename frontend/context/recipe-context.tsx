@@ -19,6 +19,12 @@ export type ChatMessage = {
   role: "user" | "assistant";
   content: string;
   hidden?: boolean;
+  failed?: boolean;
+};
+
+export type ToastConfig = {
+  message: string;
+  showRetry?: boolean;
 };
 
 export type RecipeContextValue = {
@@ -33,6 +39,10 @@ export type RecipeContextValue = {
   messages: ChatMessage[];
   isChatLoading: boolean;
   sendMessage: (content: string) => void;
+  toast: ToastConfig | null;
+  setToast: (config: ToastConfig | null) => void;
+  resetUpload: () => void;
+  retryLastMessage: () => void;
 };
 
 const Ctx = createContext<RecipeContextValue | null>(null);
@@ -43,7 +53,15 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
   const [error, setError] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isChatLoading, setIsChatLoading] = useState(false);
+  const [toast, setToast] = useState<ToastConfig | null>(null);
   const threadId = useRef(crypto.randomUUID());
+  const lastUserMessageRef = useRef<string | null>(null);
+  const isStreamingRef = useRef(false);
+
+  const endStream = () => {
+    isStreamingRef.current = false;
+    setIsChatLoading(false);
+  };
 
   const handleUpload = async (file: File): Promise<void> => {
     if (isLoading) return;
@@ -127,16 +145,7 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
     setState((prev) => ({ ...prev, current_step: index }));
   };
 
-  const sendMessage = (content: string): void => {
-    const userMsg: ChatMessage = {
-      id: crypto.randomUUID(),
-      role: "user",
-      content,
-    };
-    const outgoing = [...messages, userMsg];
-    setMessages(outgoing);
-    setIsChatLoading(true);
-
+  const streamResponse = (outgoing: ChatMessage[]): void => {
     void (async () => {
       try {
         const body: RunAgentInput = {
@@ -156,7 +165,7 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
         });
 
         if (!res.body) {
-          setIsChatLoading(false);
+          endStream();
           return;
         }
 
@@ -203,14 +212,62 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
               // snapshot is typed `any` in ag-ui - it is schema-agnostic by design
               setState(event.snapshot as RecipeState);
             } else if (event.type === EventType.RUN_FINISHED) {
-              setIsChatLoading(false);
+              endStream();
             }
           }
         }
+        // Stream closed without RUN_FINISHED — clear loading state
+        endStream();
       } catch {
-        setIsChatLoading(false);
+        endStream();
+        setMessages((prev) => {
+          const lastUserIdx = prev.findLastIndex((m) => m.role === "user");
+          if (lastUserIdx === -1) return prev;
+          return prev.map((m, i) =>
+            i === lastUserIdx ? { ...m, failed: true } : m,
+          );
+        });
+        setToast({
+          message: "Connection lost. Please check your network and try again.",
+          showRetry: true,
+        });
       }
     })();
+  };
+
+  const sendMessage = (content: string): void => {
+    if (isStreamingRef.current) return;
+    const userMsg: ChatMessage = {
+      id: crypto.randomUUID(),
+      role: "user",
+      content,
+    };
+    const outgoing = [...messages, userMsg];
+    lastUserMessageRef.current = content;
+    setMessages(outgoing);
+    isStreamingRef.current = true;
+    setIsChatLoading(true);
+    streamResponse(outgoing);
+  };
+
+  const retryLastMessage = (): void => {
+    if (!lastUserMessageRef.current || isStreamingRef.current) return;
+    const lastUserIdx = messages.findLastIndex((m) => m.role === "user");
+    const base = lastUserIdx >= 0 ? messages.slice(0, lastUserIdx) : messages;
+    const userMsg: ChatMessage = {
+      id: crypto.randomUUID(),
+      role: "user",
+      content: lastUserMessageRef.current,
+    };
+    const outgoing = [...base, userMsg];
+    setMessages(outgoing);
+    isStreamingRef.current = true;
+    setIsChatLoading(true);
+    streamResponse(outgoing);
+  };
+
+  const resetUpload = (): void => {
+    setError(null);
   };
 
   return (
@@ -227,6 +284,10 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
         messages,
         isChatLoading,
         sendMessage,
+        toast,
+        setToast,
+        resetUpload,
+        retryLastMessage,
       }}
     >
       {children}

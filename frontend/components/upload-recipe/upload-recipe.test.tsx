@@ -101,5 +101,26 @@ describe("UploadRecipe", () => {
       render(<UploadRecipe />);
       expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     });
+
+    it("should show a Try again button when there is an error", () => {
+      mockUseRecipeContext({ error: "Could not parse recipe" });
+      render(<UploadRecipe />);
+      expect(screen.getByRole("button", { name: /try again/i })).toBeInTheDocument();
+    });
+
+    it("should call resetUpload when Try again is clicked", async () => {
+      const resetUpload = vi.fn();
+      mockUseRecipeContext({ error: "Could not parse recipe", resetUpload });
+      const user = userEvent.setup();
+      render(<UploadRecipe />);
+      await user.click(screen.getByRole("button", { name: /try again/i }));
+      expect(resetUpload).toHaveBeenCalledOnce();
+    });
+
+    it("should not show a Try again button when there is no error", () => {
+      mockUseRecipeContext();
+      render(<UploadRecipe />);
+      expect(screen.queryByRole("button", { name: /try again/i })).not.toBeInTheDocument();
+    });
   });
 });
