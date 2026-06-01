@@ -1,8 +1,8 @@
 import { useCoAgent } from "@copilotkit/react-core";
 import { useState } from "react";
 import type { components } from "@/types/api";
-import { recipeContextFixture } from "@/domain/__fixtures__/recipe-context";
-import { toggleCheckedIngredient } from "@/domain/ingredients";
+import { recipeContextFixture } from "@domain/__fixtures__/recipe-context";
+import { toggleCheckedIngredient } from "@domain/ingredients";
 
 type RecipeContext = components["schemas"]["RecipeContext"];
 

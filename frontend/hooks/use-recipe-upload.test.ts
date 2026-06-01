@@ -1,3 +1,4 @@
+// Using vitest with React Testing Library per project test conventions (CONTEXT.md)
 import { renderHook, act } from "@testing-library/react";
 import { vi, beforeEach } from "vitest";
 import { useCoAgent } from "@copilotkit/react-core";

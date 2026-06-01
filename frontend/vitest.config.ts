@@ -23,6 +23,8 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "."),
       "@components": path.resolve(__dirname, "./components/index.ts"),
+      "@hooks": path.resolve(__dirname, "./hooks"),
+      "@domain": path.resolve(__dirname, "./domain"),
     },
   },
 });
