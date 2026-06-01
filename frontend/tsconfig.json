@@ -24,7 +24,8 @@
       "@components": ["./components/index.ts"],
       "@components/*": ["./components/*"],
       "@hooks/*": ["./hooks/*"],
-      "@domain/*": ["./domain/*"]
+      "@domain/*": ["./domain/*"],
+      "@test-utils/*": ["./test-utils/*"]
     }
   },
   "include": [

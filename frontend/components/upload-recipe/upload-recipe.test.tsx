@@ -17,6 +17,7 @@ const mockHook = (
     handleUpload: vi.fn(),
     handleFixture: vi.fn(),
     handleToggleIngredient: vi.fn(),
+    handleSetCurrentStep: vi.fn(),
     ...overrides,
   });
 };

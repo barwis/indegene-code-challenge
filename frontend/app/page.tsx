@@ -5,6 +5,7 @@ import {
   Tabs,
   Tab,
   IngredientsList,
+  StepsList,
   UploadRecipe,
 } from "@components";
 import { useRecipeUpload } from "@hooks/use-recipe-upload";
@@ -23,9 +24,7 @@ const Home = () => {
               <IngredientsList />
             </Tab>
             <Tab tabId="steps">
-              <p className="px-6 py-8 text-center text-sm text-stone-400">
-                Steps coming soon.
-              </p>
+              <StepsList />
             </Tab>
           </Tabs>
         </div>

@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import { vi } from "vitest";
 import * as useRecipeUploadModule from "@hooks/use-recipe-upload";
-import renderWithProviders from "./test-utils/render-with-providers";
+import renderWithProviders from "@test-utils/render-with-providers";
 import Home from "./page";
 
 vi.mock("./hooks/use-recipe-upload");
@@ -14,6 +14,7 @@ const baseHook: ReturnType<typeof useRecipeUploadModule.useRecipeUpload> = {
   handleUpload: vi.fn(),
   handleFixture: vi.fn(),
   handleToggleIngredient: vi.fn(),
+  handleSetCurrentStep: vi.fn(),
 };
 
 describe("Home", () => {
