@@ -36,7 +36,7 @@ export const Tabs = ({ children, defaultActiveTab, ariaLabel }: TabsProps) => {
   );
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-1 flex-col min-h-0">
       <div
         role="tablist"
         {...(ariaLabel ? { "aria-label": ariaLabel } : {})}
@@ -69,7 +69,7 @@ export const Tabs = ({ children, defaultActiveTab, ariaLabel }: TabsProps) => {
           id={`${uid}-panel-${tabId}`}
           aria-labelledby={`${uid}-tab-${tabId}`}
           hidden={activeTab !== tabId}
-          className="flex-1 overflow-y-auto px-6"
+          className="flex-1 min-h-0 overflow-y-auto px-6"
         >
           {content}
         </div>

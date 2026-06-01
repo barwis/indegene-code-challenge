@@ -63,14 +63,10 @@ const StepRow = ({ step, index, currentStep, onJump }: StepRowProps) => {
   ].join(" ");
 
   const rowClass = [
-    "flex w-full items-start gap-4 px-6 text-left",
-    "transition-[padding,margin,box-shadow,background-color,opacity] duration-[280ms] ease-stagger",
-    isActive
-      ? "-my-2 py-6 bg-white shadow-md rounded-xl relative z-10"
-      : isDone
-        ? "py-4 opacity-50"
-        : "py-4 opacity-60",
-  ].join(" ");
+    "flex w-full items-start gap-4 px-6 py-4 text-left",
+    "transition-opacity duration-[280ms] ease-stagger",
+    isDone ? "opacity-50" : !isActive ? "opacity-60" : "",
+  ].join(" ").trim();
 
   const instructionClass = [
     "text-base leading-relaxed",
@@ -81,7 +77,11 @@ const StepRow = ({ step, index, currentStep, onJump }: StepRowProps) => {
     <AnimatedNode
       as="li"
       delay={index * 150 + 100}
-      className="border-b border-stone-100 last:border-b-0"
+      className={[
+        "border-b border-stone-100 last:border-b-0",
+        "transition-[transform,box-shadow,background-color] duration-[280ms] ease-stagger",
+        isActive ? "scale-[1.05] relative z-10 bg-white shadow-md rounded-xl" : "",
+      ].join(" ").trim()}
     >
       <button
         className={rowClass}
