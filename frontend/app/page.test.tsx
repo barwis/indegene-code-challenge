@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 import { vi } from "vitest";
-import * as useRecipeUploadModule from "./hooks/use-recipe-upload";
+import * as useRecipeUploadModule from "@hooks/use-recipe-upload";
 import renderWithProviders from "./test-utils/render-with-providers";
 import Home from "./page";
 

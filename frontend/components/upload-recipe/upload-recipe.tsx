@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRecipeUpload } from "@/app/hooks/use-recipe-upload";
+import { useRecipeUpload } from "@hooks/use-recipe-upload";
 
 export const UploadRecipe = () => {
   const { handleUpload, handleFixture, isLoading, error } = useRecipeUpload();

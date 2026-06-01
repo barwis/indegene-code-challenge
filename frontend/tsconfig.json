@@ -22,7 +22,9 @@
     "paths": {
       "@/*": ["./*"],
       "@components": ["./components/index.ts"],
-      "@components/*": ["./components/*"]
+      "@components/*": ["./components/*"],
+      "@hooks/*": ["./hooks/*"],
+      "@domain/*": ["./domain/*"]
     }
   },
   "include": [

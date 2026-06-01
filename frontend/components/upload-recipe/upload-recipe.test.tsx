@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
-import * as useRecipeUploadModule from "@/app/hooks/use-recipe-upload";
+import * as useRecipeUploadModule from "@hooks/use-recipe-upload";
 import { UploadRecipe } from "./upload-recipe";
 
 vi.mock("@/app/hooks/use-recipe-upload");

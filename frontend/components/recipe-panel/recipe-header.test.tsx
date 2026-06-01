@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { recipeContextFixture } from "@/domain/__fixtures__/recipe-context";
+import { recipeContextFixture } from "@domain/__fixtures__/recipe-context";
 import { RecipeHeader } from "./recipe-header";
 
 const recipe = recipeContextFixture.recipe!;

@@ -1,17 +1,12 @@
 import type { components } from "@/types/api";
 import { Check } from "lucide-react";
+import { useRecipeUpload } from "@hooks/use-recipe-upload";
 import {
   formatIngredientQuantity,
   groupIngredientsByCategory,
-} from "@/domain/ingredients";
+} from "@domain/ingredients";
 
 type Ingredient = components["schemas"]["Ingredient"];
-
-export type IngredientsListProps = {
-  ingredients: Ingredient[];
-  checkedIngredients: string[];
-  onToggle: (name: string) => void;
-};
 
 type IngredientRowProps = {
   ingredient: Ingredient;
@@ -24,13 +19,14 @@ const IngredientRow = ({
   isChecked,
   onToggle,
 }: IngredientRowProps) => {
+  const { name } = ingredient;
   const qty = formatIngredientQuantity(ingredient);
   return (
     <li className="flex min-h-[50px]">
       <button
         className="flex min-h-[50px] w-full items-center gap-4 px-6 py-2"
-        onClick={() => onToggle(ingredient.name)}
-        aria-label={`${isChecked ? "Uncheck" : "Check"} ${ingredient.name}`}
+        onClick={() => onToggle(name)}
+        aria-label={`${isChecked ? "Uncheck" : "Check"} ${name}`}
         aria-pressed={isChecked}
       >
         <span
@@ -56,7 +52,7 @@ const IngredientRow = ({
           ].join(" ")}
         >
           <span className={`font-medium ${isChecked ? "line-through" : ""}`}>
-            {ingredient.name}
+            {name}
           </span>
           {qty && <span className="text-sm">{qty}</span>}
         </span>
@@ -65,11 +61,15 @@ const IngredientRow = ({
   );
 };
 
-export const IngredientsList = ({
-  ingredients,
-  checkedIngredients,
-  onToggle,
-}: IngredientsListProps) => {
+export const IngredientsList = () => {
+  const { state, handleToggleIngredient } = useRecipeUpload();
+  const { recipe, checked_ingredients } = state;
+
+  if (!recipe) return null;
+
+  const { ingredients } = recipe;
+  const checkedIngredients = checked_ingredients ?? [];
+
   const useGroups = ingredients.length > 6;
   const groups = useGroups
     ? groupIngredientsByCategory(ingredients)
@@ -99,7 +99,7 @@ export const IngredientsList = ({
                 key={`${category || "all"}-${index}`}
                 ingredient={ingredient}
                 isChecked={checkedSet.has(ingredient.name)}
-                onToggle={onToggle}
+                onToggle={handleToggleIngredient}
               />
             ))}
           </ul>
