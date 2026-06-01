@@ -1,11 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useCopilotChatInternal } from "@copilotkit/react-core";
-
-type ChatMessage = ReturnType<
-  typeof useCopilotChatInternal
->["messages"][number];
+import { useRecipeContext } from "@context/recipe-context";
+import type { ChatMessage } from "@context/recipe-context";
 
 // Typing indicator (animated dots)
 
@@ -71,6 +68,7 @@ type ChatMessageListProps = {
 };
 
 const isVisibleMessage = (m: ChatMessage): boolean =>
+  !m.hidden &&
   (m.role === "user" || m.role === "assistant") &&
   typeof m.content === "string" &&
   m.content.length > 0;
@@ -120,26 +118,23 @@ const ChatMessageList = ({ messages, isLoading }: ChatMessageListProps) => {
 // ChatPanel
 
 export const ChatPanel = () => {
-  const { messages, sendMessage, isLoading } = useCopilotChatInternal();
+  const { messages, isChatLoading, sendMessage } = useRecipeContext();
   const [inputValue, setInputValue] = useState("");
 
   const handleSend = () => {
+    if (!inputValue.trim()) return;
+    sendMessage(inputValue);
     setInputValue("");
-    sendMessage({
-      id: crypto.randomUUID(),
-      content: inputValue,
-      role: "user",
-    }).catch(() => {});
   };
 
   return (
     <div className="flex h-full flex-col">
-      <ChatMessageList messages={messages ?? []} isLoading={isLoading} />
+      <ChatMessageList messages={messages ?? []} isLoading={isChatLoading} />
       <ChatInput
         value={inputValue}
         onChange={setInputValue}
         onSend={handleSend}
-        disabled={isLoading}
+        disabled={isChatLoading}
       />
     </div>
   );

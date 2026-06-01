@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import type { PropsWithChildren } from "react";
 import { Lora, Nunito } from "next/font/google";
-import CopilotKitProvider from "./copilotkit-provider";
 import "./globals.css";
 
 const lora = Lora({
@@ -29,7 +28,7 @@ const RootLayout = ({ children }: PropsWithChildren) => (
     className={`h-full ${lora.variable} ${nunito.variable} text-lg antialiased`}
   >
     <body className="flex h-full flex-col bg-accent-50">
-      <CopilotKitProvider>{children}</CopilotKitProvider>
+      {children}
     </body>
   </html>
 );

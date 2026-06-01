@@ -25,7 +25,8 @@
       "@components/*": ["./components/*"],
       "@hooks/*": ["./hooks/*"],
       "@domain/*": ["./domain/*"],
-      "@test-utils/*": ["./test-utils/*"]
+      "@test-utils/*": ["./test-utils/*"],
+      "@context/*": ["./context/*"]
     }
   },
   "include": [

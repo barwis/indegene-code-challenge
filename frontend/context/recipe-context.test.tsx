@@ -1,19 +1,9 @@
-// Using vitest with React Testing Library per project test conventions (CONTEXT.md)
 import { renderHook, act } from "@testing-library/react";
 import { vi, beforeEach } from "vitest";
-import { useCoAgent } from "@copilotkit/react-core";
-import { useRecipeUpload } from "./use-recipe-upload";
+import { RecipeProvider, useRecipeContext } from "./recipe-context";
 import type { components } from "@/types/api";
 
 type RecipeContext = components["schemas"]["RecipeContext"];
-
-vi.mock("@copilotkit/react-core", () => ({
-  useCoAgent: vi.fn(),
-}));
-
-const mockSetState = vi.fn();
-
-const noRecipeState: RecipeContext = { current_step: 0, cooking_started: false };
 
 const withRecipeState: RecipeContext = {
   current_step: 0,
@@ -27,14 +17,11 @@ const withRecipeState: RecipeContext = {
   },
 };
 
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <RecipeProvider>{children}</RecipeProvider>
+);
+
 beforeEach(() => {
-  mockSetState.mockClear();
-  vi.mocked(useCoAgent).mockReturnValue({
-    state: noRecipeState,
-    setState: mockSetState,
-    stop: vi.fn(),
-    run: vi.fn(),
-  } as unknown as ReturnType<typeof useCoAgent>);
   vi.stubGlobal(
     "fetch",
     vi.fn().mockResolvedValue({
@@ -44,29 +31,39 @@ beforeEach(() => {
   );
 });
 
-describe("useRecipeUpload", () => {
+describe("RecipeProvider / useRecipeContext", () => {
   describe("initial state", () => {
     it("should return no recipe, not loading, and no error", () => {
-      const { result } = renderHook(() => useRecipeUpload());
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
       expect(result.current.state.recipe).toBeUndefined();
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toBeNull();
     });
+
+    it("should return empty messages and isChatLoading false", () => {
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
+      expect(result.current.messages).toEqual([]);
+      expect(result.current.isChatLoading).toBe(false);
+    });
   });
 
-  describe("handleUpload — success", () => {
-    it("should call setState with the parsed recipe state", async () => {
-      const { result } = renderHook(() => useRecipeUpload());
-      const file = new File(["recipe text"], "recipe.txt", { type: "text/plain" });
+  describe("handleUpload - success", () => {
+    it("should update state with the parsed recipe", async () => {
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
+      const file = new File(["recipe text"], "recipe.txt", {
+        type: "text/plain",
+      });
       await act(async () => {
         await result.current.handleUpload(file);
       });
-      expect(mockSetState).toHaveBeenCalledWith(withRecipeState);
+      expect(result.current.state.recipe?.title).toBe("Spaghetti al Pomodoro");
     });
 
     it("should POST to the upload endpoint with the file", async () => {
-      const { result } = renderHook(() => useRecipeUpload());
-      const file = new File(["recipe text"], "recipe.txt", { type: "text/plain" });
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
+      const file = new File(["recipe text"], "recipe.txt", {
+        type: "text/plain",
+      });
       await act(async () => {
         await result.current.handleUpload(file);
       });
@@ -79,7 +76,8 @@ describe("useRecipeUpload", () => {
     it("should clear the error on a new upload attempt", async () => {
       vi.stubGlobal(
         "fetch",
-        vi.fn()
+        vi
+          .fn()
           .mockResolvedValueOnce({
             ok: false,
             status: 422,
@@ -90,16 +88,20 @@ describe("useRecipeUpload", () => {
             json: async () => ({ state: withRecipeState }),
           } as Response),
       );
-      const { result } = renderHook(() => useRecipeUpload());
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
       const file = new File(["x"], "x.txt", { type: "text/plain" });
-      await act(async () => { await result.current.handleUpload(file); });
+      await act(async () => {
+        await result.current.handleUpload(file);
+      });
       expect(result.current.error).toBe("Bad file");
-      await act(async () => { await result.current.handleUpload(file); });
+      await act(async () => {
+        await result.current.handleUpload(file);
+      });
       expect(result.current.error).toBeNull();
     });
 
     it("should set isLoading to false after upload completes", async () => {
-      const { result } = renderHook(() => useRecipeUpload());
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
       const file = new File(["recipe"], "recipe.txt", { type: "text/plain" });
       await act(async () => {
         await result.current.handleUpload(file);
@@ -111,11 +113,15 @@ describe("useRecipeUpload", () => {
   describe("handleUpload — concurrent guard", () => {
     it("should not start a second fetch while an upload is already in progress", async () => {
       vi.stubGlobal("fetch", vi.fn().mockReturnValue(new Promise(() => {})));
-      const { result } = renderHook(() => useRecipeUpload());
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
       const file = new File(["recipe"], "recipe.txt", { type: "text/plain" });
 
-      act(() => { void result.current.handleUpload(file); });
-      await act(async () => { await result.current.handleUpload(file); });
+      act(() => {
+        void result.current.handleUpload(file);
+      });
+      await act(async () => {
+        await result.current.handleUpload(file);
+      });
 
       expect(fetch).toHaveBeenCalledTimes(1);
     });
@@ -123,80 +129,84 @@ describe("useRecipeUpload", () => {
 
   describe("handleUpload — file type validation", () => {
     it("should set an error and not fetch for unsupported file types", async () => {
-      const { result } = renderHook(() => useRecipeUpload());
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
       await act(async () => {
-        await result.current.handleUpload(new File(["img"], "photo.jpg", { type: "image/jpeg" }));
+        await result.current.handleUpload(
+          new File(["img"], "photo.jpg", { type: "image/jpeg" }),
+        );
       });
       expect(fetch).not.toHaveBeenCalled();
       expect(result.current.error).toMatch(/unsupported file type/i);
     });
 
     it("should accept .pdf files", async () => {
-      const { result } = renderHook(() => useRecipeUpload());
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
       await act(async () => {
-        await result.current.handleUpload(new File(["pdf"], "recipe.pdf", { type: "application/pdf" }));
+        await result.current.handleUpload(
+          new File(["pdf"], "recipe.pdf", { type: "application/pdf" }),
+        );
       });
       expect(fetch).toHaveBeenCalledTimes(1);
     });
 
     it("should accept .txt files", async () => {
-      const { result } = renderHook(() => useRecipeUpload());
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
       await act(async () => {
-        await result.current.handleUpload(new File(["txt"], "recipe.txt", { type: "text/plain" }));
+        await result.current.handleUpload(
+          new File(["txt"], "recipe.txt", { type: "text/plain" }),
+        );
       });
       expect(fetch).toHaveBeenCalledTimes(1);
     });
 
     it("should not set isLoading when rejecting an invalid file type", async () => {
-      const { result } = renderHook(() => useRecipeUpload());
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
       await act(async () => {
-        await result.current.handleUpload(new File(["doc"], "notes.docx", { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }));
+        await result.current.handleUpload(
+          new File(["doc"], "notes.docx", {
+            type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          }),
+        );
       });
       expect(result.current.isLoading).toBe(false);
     });
   });
 
   describe("handleFixture", () => {
-    it("should call setState with the fixture recipe context", () => {
-      const { result } = renderHook(() => useRecipeUpload());
+    it("should set state to the fixture recipe", () => {
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
       act(() => {
         result.current.handleFixture();
       });
-      expect(mockSetState).toHaveBeenCalledOnce();
-      const calledWith = mockSetState.mock.calls[0][0] as RecipeContext;
-      expect(calledWith.recipe?.title).toBe("Spaghetti al Pomodoro");
+      expect(result.current.state.recipe?.title).toBe("Spaghetti al Pomodoro");
     });
   });
 
   describe("handleSetCurrentStep", () => {
-    it("should call setState with the updated current_step", () => {
-      const { result } = renderHook(() => useRecipeUpload());
+    it("should update current_step in state", () => {
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
       act(() => {
         result.current.handleSetCurrentStep(4);
       });
-      expect(mockSetState).toHaveBeenCalledWith(
-        expect.objectContaining({ current_step: 4 }),
-      );
+      expect(result.current.state.current_step).toBe(4);
     });
 
     it("should preserve other state fields when updating current_step", () => {
-      const stateWithIngredients: RecipeContext = {
-        ...noRecipeState,
-        checked_ingredients: ["garlic", "salt"],
-      };
-      vi.mocked(useCoAgent).mockReturnValue({
-        state: stateWithIngredients,
-        setState: mockSetState,
-        stop: vi.fn(),
-        run: vi.fn(),
-      } as unknown as ReturnType<typeof useCoAgent>);
-      const { result } = renderHook(() => useRecipeUpload());
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
+      act(() => {
+        result.current.handleToggleIngredient("garlic");
+      });
+      act(() => {
+        result.current.handleToggleIngredient("salt");
+      });
       act(() => {
         result.current.handleSetCurrentStep(2);
       });
-      expect(mockSetState).toHaveBeenCalledWith(
-        expect.objectContaining({ current_step: 2, checked_ingredients: ["garlic", "salt"] }),
-      );
+      expect(result.current.state.current_step).toBe(2);
+      expect(result.current.state.checked_ingredients).toEqual([
+        "garlic",
+        "salt",
+      ]);
     });
   });
 
@@ -210,8 +220,10 @@ describe("useRecipeUpload", () => {
           json: async () => ({ detail: "Could not parse a recipe" }),
         } as Response),
       );
-      const { result } = renderHook(() => useRecipeUpload());
-      const file = new File(["not a recipe"], "notes.txt", { type: "text/plain" });
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
+      const file = new File(["not a recipe"], "notes.txt", {
+        type: "text/plain",
+      });
       await act(async () => {
         await result.current.handleUpload(file);
       });
@@ -227,9 +239,11 @@ describe("useRecipeUpload", () => {
           json: async () => ({}),
         } as Response),
       );
-      const { result } = renderHook(() => useRecipeUpload());
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
       await act(async () => {
-        await result.current.handleUpload(new File([""], "f.txt", { type: "text/plain" }));
+        await result.current.handleUpload(
+          new File([""], "f.txt", { type: "text/plain" }),
+        );
       });
       expect(result.current.error).toBe("Upload failed (500)");
     });
@@ -243,9 +257,11 @@ describe("useRecipeUpload", () => {
           json: async () => ({}),
         } as Response),
       );
-      const { result } = renderHook(() => useRecipeUpload());
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
       await act(async () => {
-        await result.current.handleUpload(new File([""], "f.txt", { type: "text/plain" }));
+        await result.current.handleUpload(
+          new File([""], "f.txt", { type: "text/plain" }),
+        );
       });
       expect(result.current.isLoading).toBe(false);
     });
