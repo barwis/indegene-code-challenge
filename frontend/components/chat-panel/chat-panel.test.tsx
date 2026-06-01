@@ -11,6 +11,7 @@ const mockSendMessage = vi.fn();
 
 const userMsg: ChatMessage = { id: "1", role: "user", content: "Hello chef" };
 const agentMsg: ChatMessage = { id: "2", role: "assistant", content: "Let me help you" };
+const failedMsg: ChatMessage = { id: "3", role: "user", content: "Failed message", failed: true };
 
 describe("ChatPanel", () => {
   beforeEach(() => {
@@ -92,6 +93,26 @@ describe("ChatPanel", () => {
       render(<ChatPanel />);
       await user.type(screen.getByRole("textbox"), "Hello");
       expect(screen.getByRole("button", { name: /send/i })).toBeEnabled();
+    });
+  });
+
+  describe("failed message", () => {
+    it("should show Not sent indicator on a failed user message", () => {
+      mockUseRecipeContext({ messages: [failedMsg], sendMessage: mockSendMessage });
+      render(<ChatPanel />);
+      expect(screen.getByText("Not sent")).toBeInTheDocument();
+    });
+
+    it("should not show Not sent indicator on a normal user message", () => {
+      mockUseRecipeContext({ messages: [userMsg], sendMessage: mockSendMessage });
+      render(<ChatPanel />);
+      expect(screen.queryByText("Not sent")).not.toBeInTheDocument();
+    });
+
+    it("should not show Not sent indicator on an agent message", () => {
+      mockUseRecipeContext({ messages: [agentMsg], sendMessage: mockSendMessage });
+      render(<ChatPanel />);
+      expect(screen.queryByText("Not sent")).not.toBeInTheDocument();
     });
   });
 

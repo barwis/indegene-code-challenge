@@ -47,6 +47,10 @@ const setupStatefulMock = (initialChecked: string[] = []) => {
     messages: [],
     isChatLoading: false,
     sendMessage: vi.fn(),
+    toast: null,
+    setToast: vi.fn(),
+    resetUpload: vi.fn(),
+    retryLastMessage: vi.fn(),
   }));
   return checked;
 };

@@ -7,6 +7,7 @@ import {
   Tab,
   IngredientsList,
   StepsList,
+  Toast,
   UploadRecipe,
 } from "@components";
 import { RecipeProvider, useRecipeContext } from "@context/recipe-context";
@@ -42,6 +43,7 @@ const HomeContent = () => {
 const Home = () => (
   <RecipeProvider>
     <HomeContent />
+    <Toast />
   </RecipeProvider>
 );
 

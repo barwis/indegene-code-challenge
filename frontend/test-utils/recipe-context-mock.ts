@@ -17,6 +17,10 @@ export const mockUseRecipeContext = (
     messages: [],
     isChatLoading: false,
     sendMessage: vi.fn(),
+    toast: null,
+    setToast: vi.fn(),
+    resetUpload: vi.fn(),
+    retryLastMessage: vi.fn(),
     ...overrides,
   });
 };
