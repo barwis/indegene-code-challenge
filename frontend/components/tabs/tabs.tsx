@@ -1,4 +1,11 @@
-import { Children, isValidElement, useState, useId, type PropsWithChildren, type ReactNode } from "react";
+import {
+  Children,
+  isValidElement,
+  useState,
+  useId,
+  type PropsWithChildren,
+  type ReactNode,
+} from "react";
 
 export type TabProps = PropsWithChildren<{
   tabId: string;
@@ -16,8 +23,9 @@ export const Tabs = ({ children, defaultActiveTab, ariaLabel }: TabsProps) => {
   const uid = useId();
 
   const tabs = Children.toArray(children)
-    .filter((child): child is React.ReactElement<TabProps> =>
-      isValidElement(child) && child.type === Tab,
+    .filter(
+      (child): child is React.ReactElement<TabProps> =>
+        isValidElement(child) && child.type === Tab,
     )
     .map((child) => child.props);
 
@@ -28,7 +36,7 @@ export const Tabs = ({ children, defaultActiveTab, ariaLabel }: TabsProps) => {
   );
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-1 flex-col min-h-0">
       <div
         role="tablist"
         {...(ariaLabel ? { "aria-label": ariaLabel } : {})}
@@ -61,7 +69,7 @@ export const Tabs = ({ children, defaultActiveTab, ariaLabel }: TabsProps) => {
           id={`${uid}-panel-${tabId}`}
           aria-labelledby={`${uid}-tab-${tabId}`}
           hidden={activeTab !== tabId}
-          className="overflow-y-auto"
+          className="flex-1 min-h-0 overflow-y-auto px-6"
         >
           {content}
         </div>

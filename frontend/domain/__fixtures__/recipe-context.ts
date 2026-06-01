@@ -66,11 +66,84 @@ export const recipeContextFixture: RecipeContext = {
         category: "spice",
         substitutes: [],
       },
+      {
+        name: "black pepper",
+        quantity: null,
+        unit: "to taste",
+        preparation: "freshly ground",
+        category: "spice",
+        substitutes: [],
+      },
+      {
+        name: "Parmigiano-Reggiano",
+        quantity: 50,
+        unit: "g",
+        preparation: "finely grated",
+        category: "dairy",
+        substitutes: ["Grana Padano", "Pecorino Romano"],
+      },
+      {
+        name: "dry white wine",
+        quantity: 60,
+        unit: "ml",
+        preparation: null,
+        category: "pantry",
+        substitutes: ["vegetable stock"],
+      },
+      {
+        name: "chilli flakes",
+        quantity: 0.5,
+        unit: "tsp",
+        preparation: null,
+        category: "spice",
+        substitutes: ["fresh red chilli"],
+      },
+      {
+        name: "cherry tomatoes",
+        quantity: 200,
+        unit: "g",
+        preparation: "halved",
+        category: "produce",
+        substitutes: [],
+      },
+      {
+        name: "unsalted butter",
+        quantity: 20,
+        unit: "g",
+        preparation: null,
+        category: "dairy",
+        substitutes: ["olive oil"],
+      },
+      {
+        name: "onion",
+        quantity: 1,
+        unit: "medium",
+        preparation: "finely diced",
+        category: "produce",
+        substitutes: ["shallot"],
+      },
+      {
+        name: "tomato paste",
+        quantity: 1,
+        unit: "tbsp",
+        preparation: null,
+        category: "pantry",
+        substitutes: [],
+      },
+      {
+        name: "crusty bread",
+        quantity: null,
+        unit: null,
+        preparation: "sliced",
+        category: "other",
+        substitutes: ["ciabatta", "sourdough"],
+      },
     ],
     steps: [
       {
         step_number: 1,
-        instruction: "Bring a large pot of water to a boil. Season generously with salt.",
+        instruction:
+          "Bring a large pot of water to a boil. Season generously with salt.",
         duration_minutes: 10,
         timer_label: "Boil water",
         requires_attention: false,
@@ -78,7 +151,8 @@ export const recipeContextFixture: RecipeContext = {
       },
       {
         step_number: 2,
-        instruction: "Heat olive oil in a wide pan over medium heat. Add garlic and cook until golden and fragrant, about 1 minute.",
+        instruction:
+          "Heat olive oil in a wide pan over medium heat. Add garlic and cook until golden and fragrant, about 1 minute.",
         duration_minutes: 1,
         timer_label: "Cook garlic",
         requires_attention: true,
@@ -86,7 +160,8 @@ export const recipeContextFixture: RecipeContext = {
       },
       {
         step_number: 3,
-        instruction: "Add crushed tomatoes to the pan. Simmer over medium-low heat for 15 minutes, stirring occasionally.",
+        instruction:
+          "Add crushed tomatoes to the pan. Simmer over medium-low heat for 15 minutes, stirring occasionally.",
         duration_minutes: 15,
         timer_label: "Simmer sauce",
         requires_attention: false,
@@ -94,7 +169,8 @@ export const recipeContextFixture: RecipeContext = {
       },
       {
         step_number: 4,
-        instruction: "Cook spaghetti in the boiling water until al dente, 8-10 minutes. Reserve a cup of pasta water before draining.",
+        instruction:
+          "Cook spaghetti in the boiling water until al dente, 8-10 minutes. Reserve a cup of pasta water before draining.",
         duration_minutes: 9,
         timer_label: "Cook pasta",
         requires_attention: false,
@@ -102,11 +178,57 @@ export const recipeContextFixture: RecipeContext = {
       },
       {
         step_number: 5,
-        instruction: "Drain the pasta and toss it in the sauce over low heat for 1 minute. Add a splash of pasta water if needed. Finish with torn basil.",
+        instruction:
+          "Drain the pasta and toss it in the sauce over low heat for 1 minute. Add a splash of pasta water if needed. Finish with torn basil.",
         duration_minutes: 1,
         timer_label: null,
         requires_attention: false,
         tips: ["Pasta water helps the sauce cling to the spaghetti"],
+      },
+      {
+        step_number: 6,
+        instruction:
+          "Taste the pasta and adjust seasoning with salt. Add a drizzle of fresh olive oil for extra richness.",
+        duration_minutes: 1,
+        timer_label: null,
+        requires_attention: false,
+        tips: ["A good finishing oil makes a noticeable difference"],
+      },
+      {
+        step_number: 7,
+        instruction:
+          "Divide the pasta into warm bowls. Spoon any remaining sauce from the pan over each portion.",
+        duration_minutes: 2,
+        timer_label: null,
+        requires_attention: false,
+        tips: ["Warm the bowls briefly in the oven or with hot water to keep the pasta hot longer"],
+      },
+      {
+        step_number: 8,
+        instruction:
+          "Grate Parmigiano-Reggiano generously over each bowl, or leave it off for a more traditional Neapolitan preparation.",
+        duration_minutes: 1,
+        timer_label: null,
+        requires_attention: false,
+        tips: ["Authentic al pomodoro is often served without cheese"],
+      },
+      {
+        step_number: 9,
+        instruction:
+          "Add a few more torn basil leaves on top and a crack of black pepper. Serve immediately.",
+        duration_minutes: 1,
+        timer_label: null,
+        requires_attention: false,
+        tips: [],
+      },
+      {
+        step_number: 10,
+        instruction:
+          "Bring a small piece of crusty bread to the table to mop up the remaining sauce. Enjoy.",
+        duration_minutes: null,
+        timer_label: null,
+        requires_attention: false,
+        tips: ["This step is mandatory"],
       },
     ],
   },

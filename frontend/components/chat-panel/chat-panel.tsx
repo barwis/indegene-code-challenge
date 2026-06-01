@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Mic, ArrowRight } from "lucide-react";
+import Markdown from "react-markdown";
 import { useRecipeContext } from "@context/recipe-context";
 import type { ChatMessage } from "@context/recipe-context";
 import { useVoiceInput } from "./use-voice-input";
+import { useAutoResize } from "./use-auto-resize";
 
 // Typing indicator (animated dots)
 
@@ -46,25 +48,32 @@ const ChatInput = ({
   const showMic = isMicSupported && !hasText;
   const isInputDisabled = disabled || isListening;
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+  const textareaRef = useAutoResize(value);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       if (canSend) onSend();
     }
   };
 
   return (
-    <div className="flex gap-2 border-t border-stone-200 p-4">
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder="Ask your cooking assistant..."
-        aria-label="Chat message"
-        disabled={isInputDisabled}
-        className="flex-1 rounded-full border border-stone-200 bg-white px-4 py-3 text-stone-900 focus:outline-none focus:ring-2 focus:ring-accent-400 disabled:opacity-50"
-      />
+    <div className="flex items-end gap-2 border-t border-stone-200 p-4">
+      <div
+        className={`flex-1 overflow-hidden rounded-full border border-stone-200 bg-white focus-within:ring-2 focus-within:ring-accent-400 ${isInputDisabled ? "opacity-50" : ""}`}
+      >
+        <textarea
+          ref={textareaRef}
+          rows={1}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Ask your cooking assistant..."
+          aria-label="Chat message"
+          disabled={isInputDisabled}
+          className="block w-full resize-none bg-transparent px-4 py-3 text-stone-900 focus:outline-none"
+        />
+      </div>
       {showMic ? (
         <button
           onClick={onMicClick}
@@ -118,17 +127,23 @@ const ChatMessageList = ({ messages, isLoading }: ChatMessageListProps) => {
         return (
           <div
             key={msg.id}
-            className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+            className={`flex motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-2 duration-200 ${isUser ? "justify-end" : "justify-start"}`}
           >
-            <div className={`flex flex-col gap-1 ${isUser ? "items-end" : "items-start"}`}>
+            <div
+              className={`flex w-full flex-col gap-1 ${isUser ? "items-end" : "items-start"}`}
+            >
               <div
                 className={
                   isUser
                     ? "max-w-[80%] rounded-2xl bg-accent-500 px-4 py-3 text-white"
-                    : "max-w-[80%] rounded-2xl bg-stone-200 px-4 py-3 text-stone-900"
+                    : "prose prose-stone max-w-[80%] rounded-2xl bg-stone-200 px-4 py-3 text-stone-900"
                 }
               >
-                {msg.content as string}
+                {isUser ? (
+                  msg.content as string
+                ) : (
+                  <Markdown>{msg.content as string}</Markdown>
+                )}
               </div>
               {isUser && msg.failed && (
                 <span className="text-xs text-red-500">Not sent</span>
@@ -155,10 +170,11 @@ export const ChatPanel = () => {
   const { messages, isChatLoading, sendMessage, setToast } = useRecipeContext();
   const [inputValue, setInputValue] = useState("");
 
-  const { isSupported, isListening, startListening, stopListening } = useVoiceInput({
-    onTranscript: (text) => setInputValue(text),
-    onError: (message) => setToast({ message }),
-  });
+  const { isSupported, isListening, startListening, stopListening } =
+    useVoiceInput({
+      onTranscript: (text) => setInputValue(text),
+      onError: (message) => setToast({ message }),
+    });
 
   const handleSend = () => {
     if (!inputValue.trim()) return;
