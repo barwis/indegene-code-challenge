@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { Mic, ArrowRight } from "lucide-react";
 import { useRecipeContext } from "@context/recipe-context";
 import type { ChatMessage } from "@context/recipe-context";
+import { useVoiceInput } from "./use-voice-input";
 
 // Typing indicator (animated dots)
 
@@ -25,10 +27,24 @@ type ChatInputProps = {
   onChange: (v: string) => void;
   onSend: () => void;
   disabled: boolean;
+  isMicSupported: boolean;
+  isListening: boolean;
+  onMicClick: () => void;
 };
 
-const ChatInput = ({ value, onChange, onSend, disabled }: ChatInputProps) => {
-  const canSend = value.trim().length > 0 && !disabled;
+const ChatInput = ({
+  value,
+  onChange,
+  onSend,
+  disabled,
+  isMicSupported,
+  isListening,
+  onMicClick,
+}: ChatInputProps) => {
+  const hasText = value.trim().length > 0;
+  const canSend = hasText && !disabled;
+  const showMic = isMicSupported && !hasText;
+  const isInputDisabled = disabled || isListening;
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -46,16 +62,29 @@ const ChatInput = ({ value, onChange, onSend, disabled }: ChatInputProps) => {
         onKeyDown={handleKeyDown}
         placeholder="Ask your cooking assistant..."
         aria-label="Chat message"
-        className="flex-1 rounded-xl border border-stone-200 bg-white px-4 py-3 text-stone-900 focus:outline-none focus:ring-2 focus:ring-accent-400"
+        disabled={isInputDisabled}
+        className="flex-1 rounded-full border border-stone-200 bg-white px-4 py-3 text-stone-900 focus:outline-none focus:ring-2 focus:ring-accent-400 disabled:opacity-50"
       />
-      <button
-        onClick={onSend}
-        disabled={!canSend}
-        aria-label="Send message"
-        className="min-h-[50px] min-w-[50px] rounded-xl bg-accent-500 px-4 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        Send
-      </button>
+      {showMic ? (
+        <button
+          onClick={onMicClick}
+          disabled={disabled}
+          aria-label={isListening ? "Stop listening" : "Start voice input"}
+          aria-pressed={isListening}
+          className={`flex h-[50px] w-[50px] flex-shrink-0 items-center justify-center rounded-full text-white disabled:cursor-not-allowed disabled:opacity-50 ${isListening ? "bg-red-500 ring-4 ring-red-300 motion-safe:animate-pulse" : "bg-accent-500"}`}
+        >
+          <Mic size={20} />
+        </button>
+      ) : (
+        <button
+          onClick={onSend}
+          disabled={!canSend}
+          aria-label="Send message"
+          className="flex h-[50px] w-[50px] flex-shrink-0 items-center justify-center rounded-full bg-accent-500 text-white disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <ArrowRight size={20} />
+        </button>
+      )}
     </div>
   );
 };
@@ -123,8 +152,13 @@ const ChatMessageList = ({ messages, isLoading }: ChatMessageListProps) => {
 // ChatPanel
 
 export const ChatPanel = () => {
-  const { messages, isChatLoading, sendMessage } = useRecipeContext();
+  const { messages, isChatLoading, sendMessage, setToast } = useRecipeContext();
   const [inputValue, setInputValue] = useState("");
+
+  const { isSupported, isListening, startListening, stopListening } = useVoiceInput({
+    onTranscript: (text) => setInputValue(text),
+    onError: (message) => setToast({ message }),
+  });
 
   const handleSend = () => {
     if (!inputValue.trim()) return;
@@ -140,6 +174,9 @@ export const ChatPanel = () => {
         onChange={setInputValue}
         onSend={handleSend}
         disabled={isChatLoading}
+        isMicSupported={isSupported}
+        isListening={isListening}
+        onMicClick={isListening ? stopListening : startListening}
       />
     </div>
   );
