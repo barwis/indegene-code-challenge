@@ -13,6 +13,11 @@ export const RecipeHeader = ({ recipe }: RecipeHeaderProps) => {
       <h1 className="font-heading text-3xl font-semibold text-accent-700">
         {recipe.title || "Untitled Recipe"}
       </h1>
+      {recipe.description && (
+        <p className="mt-2 text-sm leading-relaxed text-stone-500">
+          {recipe.description}
+        </p>
+      )}
       <div className="mt-3 flex flex-wrap gap-2">
         {recipe.prep_time_minutes != null && (
           <span className="flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-sm text-stone-600">
