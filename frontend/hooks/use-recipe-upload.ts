@@ -22,6 +22,7 @@ export type UseRecipeUploadReturn = {
   handleUpload: (file: File) => Promise<void>;
   handleFixture: () => void;
   handleToggleIngredient: (name: string) => void;
+  handleSetCurrentStep: (index: number) => void;
 };
 
 export const useRecipeUpload = (): UseRecipeUploadReturn => {
@@ -76,5 +77,9 @@ export const useRecipeUpload = (): UseRecipeUploadReturn => {
     });
   };
 
-  return { state, setState, isLoading, error, handleUpload, handleFixture, handleToggleIngredient };
+  const handleSetCurrentStep = (index: number) => {
+    setState({ ...state, current_step: index });
+  };
+
+  return { state, setState, isLoading, error, handleUpload, handleFixture, handleToggleIngredient, handleSetCurrentStep };
 };

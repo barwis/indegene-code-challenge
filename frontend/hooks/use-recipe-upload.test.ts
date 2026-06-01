@@ -168,6 +168,38 @@ describe("useRecipeUpload", () => {
     });
   });
 
+  describe("handleSetCurrentStep", () => {
+    it("should call setState with the updated current_step", () => {
+      const { result } = renderHook(() => useRecipeUpload());
+      act(() => {
+        result.current.handleSetCurrentStep(4);
+      });
+      expect(mockSetState).toHaveBeenCalledWith(
+        expect.objectContaining({ current_step: 4 }),
+      );
+    });
+
+    it("should preserve other state fields when updating current_step", () => {
+      const stateWithIngredients: RecipeContext = {
+        ...noRecipeState,
+        checked_ingredients: ["garlic", "salt"],
+      };
+      vi.mocked(useCoAgent).mockReturnValue({
+        state: stateWithIngredients,
+        setState: mockSetState,
+        stop: vi.fn(),
+        run: vi.fn(),
+      } as unknown as ReturnType<typeof useCoAgent>);
+      const { result } = renderHook(() => useRecipeUpload());
+      act(() => {
+        result.current.handleSetCurrentStep(2);
+      });
+      expect(mockSetState).toHaveBeenCalledWith(
+        expect.objectContaining({ current_step: 2, checked_ingredients: ["garlic", "salt"] }),
+      );
+    });
+  });
+
   describe("handleUpload — failure", () => {
     it("should set error from the response detail field", async () => {
       vi.stubGlobal(
