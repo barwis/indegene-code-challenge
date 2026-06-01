@@ -9,10 +9,10 @@ import {
   StepsList,
   UploadRecipe,
 } from "@components";
-import { useRecipeUpload } from "@hooks/use-recipe-upload";
+import { RecipeProvider, useRecipeContext } from "@context/recipe-context";
 
-const Home = () => {
-  const { state } = useRecipeUpload();
+const HomeContent = () => {
+  const { state } = useRecipeContext();
   const { recipe } = state;
 
   if (recipe) {
@@ -38,5 +38,11 @@ const Home = () => {
 
   return <UploadRecipe />;
 };
+
+const Home = () => (
+  <RecipeProvider>
+    <HomeContent />
+  </RecipeProvider>
+);
 
 export default Home;

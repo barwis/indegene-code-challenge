@@ -1,6 +1,6 @@
 import type { components } from "@/types/api";
 import { AlertTriangle } from "lucide-react";
-import { useRecipeUpload } from "@hooks/use-recipe-upload";
+import { useRecipeContext } from "@context/recipe-context";
 import { getStepState, getStepTips, hasAttentionWarning } from "@domain/steps";
 
 type RecipeStep = components["schemas"]["RecipeStep"];
@@ -91,7 +91,7 @@ const StepRow = ({ step, index, currentStep, onJump }: StepRowProps) => {
 };
 
 export const StepsList = () => {
-  const { state, handleSetCurrentStep } = useRecipeUpload();
+  const { state, handleSetCurrentStep } = useRecipeContext();
   const { recipe, current_step } = state;
 
   if (!recipe) return null;

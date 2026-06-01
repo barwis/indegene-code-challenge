@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRecipeUpload } from "@hooks/use-recipe-upload";
+import { useRecipeContext } from "@context/recipe-context";
 
 export const UploadRecipe = () => {
-  const { handleUpload, handleFixture, isLoading, error } = useRecipeUpload();
+  const { handleUpload, handleFixture, isLoading, error } = useRecipeContext();
   const [isDragOver, setIsDragOver] = useState(false);
   const showFixture = process.env.NODE_ENV !== "production";
 

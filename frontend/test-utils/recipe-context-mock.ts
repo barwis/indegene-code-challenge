@@ -1,11 +1,11 @@
 import { vi } from "vitest";
-import * as useRecipeUploadModule from "@hooks/use-recipe-upload";
+import * as recipeContextModule from "@context/recipe-context";
 import { recipeContextFixture } from "@domain/__fixtures__/recipe-context";
 
-export const mockUseRecipeUpload = (
-  overrides: Partial<ReturnType<typeof useRecipeUploadModule.useRecipeUpload>> = {},
+export const mockUseRecipeContext = (
+  overrides: Partial<ReturnType<typeof recipeContextModule.useRecipeContext>> = {},
 ) => {
-  vi.spyOn(useRecipeUploadModule, "useRecipeUpload").mockReturnValue({
+  vi.spyOn(recipeContextModule, "useRecipeContext").mockReturnValue({
     state: recipeContextFixture,
     setState: vi.fn(),
     isLoading: false,
@@ -14,6 +14,9 @@ export const mockUseRecipeUpload = (
     handleFixture: vi.fn(),
     handleToggleIngredient: vi.fn(),
     handleSetCurrentStep: vi.fn(),
+    messages: [],
+    isChatLoading: false,
+    sendMessage: vi.fn(),
     ...overrides,
   });
 };

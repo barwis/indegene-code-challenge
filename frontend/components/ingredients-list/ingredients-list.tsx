@@ -1,6 +1,6 @@
 import type { components } from "@/types/api";
 import { Check } from "lucide-react";
-import { useRecipeUpload } from "@hooks/use-recipe-upload";
+import { useRecipeContext } from "@context/recipe-context";
 import {
   formatIngredientQuantity,
   groupIngredientsByCategory,
@@ -62,7 +62,7 @@ const IngredientRow = ({
 };
 
 export const IngredientsList = () => {
-  const { state, handleToggleIngredient } = useRecipeUpload();
+  const { state, handleToggleIngredient } = useRecipeContext();
   const { recipe, checked_ingredients } = state;
 
   if (!recipe) return null;
