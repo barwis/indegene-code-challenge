@@ -2,6 +2,7 @@ import type { components } from "@/types/api";
 import { getStepState } from "@domain/steps";
 import { AnimatedNode } from "@components";
 import { StepHint } from "./step-hint";
+import { useAutoScrollStep } from "./use-auto-scroll-step";
 
 type RecipeStep = components["schemas"]["RecipeStep"];
 
@@ -17,6 +18,7 @@ const StepRow = ({ step, index, currentStep, onJump }: StepRowProps) => {
   const state = getStepState(index, currentStep);
   const isActive = state === "active";
   const isDone = state === "done";
+  const scrollRef = useAutoScrollStep(isActive);
 
   const circleClass = [
     "flex size-[50px] flex-shrink-0 items-center justify-center rounded-full border-2 font-semibold transition-colors duration-300 text-sm",
@@ -55,6 +57,7 @@ const StepRow = ({ step, index, currentStep, onJump }: StepRowProps) => {
         .trim()}
     >
       <button
+        ref={scrollRef}
         className={rowClass}
         onClick={() => onJump(index)}
         aria-label={`Go to step ${step_number}`}
