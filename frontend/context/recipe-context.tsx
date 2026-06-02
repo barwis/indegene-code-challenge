@@ -49,7 +49,6 @@ export type ToastConfig = {
 
 export type RecipeContextValue = {
   state: RecipeState;
-  setState: (next: RecipeState) => void;
   isLoading: boolean;
   error: string | null;
   handleUpload: (file: File) => Promise<void>;
@@ -311,7 +310,6 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
     <Ctx.Provider
       value={{
         state,
-        setState,
         isLoading,
         error,
         handleUpload,

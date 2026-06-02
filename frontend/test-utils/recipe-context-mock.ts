@@ -7,7 +7,6 @@ export const mockUseRecipeContext = (
 ) => {
   vi.spyOn(recipeContextModule, "useRecipeContext").mockReturnValue({
     state: recipeContextFixture,
-    setState: vi.fn(),
     isLoading: false,
     error: null,
     handleUpload: vi.fn(),
