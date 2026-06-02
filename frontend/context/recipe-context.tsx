@@ -42,6 +42,7 @@ export type RecipeContextValue = {
   toast: ToastConfig | null;
   setToast: (config: ToastConfig | null) => void;
   resetUpload: () => void;
+  resetRecipe: () => void;
   retryLastMessage: () => void;
 };
 
@@ -270,6 +271,13 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
     setError(null);
   };
 
+  const resetRecipe = (): void => {
+    setState(INITIAL_STATE);
+    setMessages([]);
+    setError(null);
+    setToast(null);
+  };
+
   return (
     <Ctx.Provider
       value={{
@@ -287,6 +295,7 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
         toast,
         setToast,
         resetUpload,
+        resetRecipe,
         retryLastMessage,
       }}
     >

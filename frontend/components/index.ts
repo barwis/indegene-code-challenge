@@ -1,3 +1,4 @@
+export * from "./error-boundary";
 export * from "./chat-drawer";
 export * from "./chat-panel";
 export * from "./animated-node";

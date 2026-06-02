@@ -1,13 +1,14 @@
 "use client";
 
-import { Toast } from "@components";
 import { RecipeProvider } from "@context/recipe-context";
+import { RecipeErrorBoundary } from "@components";
 import { HomeContent } from "../components/home-content";
 
 const Home = () => (
   <RecipeProvider>
-    <HomeContent />
-    <Toast />
+    <RecipeErrorBoundary>
+      <HomeContent />
+    </RecipeErrorBoundary>
   </RecipeProvider>
 );
 

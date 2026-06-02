@@ -20,6 +20,7 @@ export const mockUseRecipeContext = (
     toast: null,
     setToast: vi.fn(),
     resetUpload: vi.fn(),
+    resetRecipe: vi.fn(),
     retryLastMessage: vi.fn(),
     ...overrides,
   });
