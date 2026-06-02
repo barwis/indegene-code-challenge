@@ -14,14 +14,14 @@ type OwnProps = {
   className?: string;
 };
 
-export type AnimatedNodeProps<
+type AnimatedNodeProps<
   T extends keyof React.JSX.IntrinsicElements = "div",
 > = OwnProps & { as?: T } & Omit<
     React.ComponentPropsWithoutRef<T>,
     keyof OwnProps | "as" | "style"
   >;
 
-export const AnimatedNode = <T extends keyof React.JSX.IntrinsicElements = "div">({
+const AnimatedNode = <T extends keyof React.JSX.IntrinsicElements = "div">({
   children,
   delay = 0,
   duration,
@@ -48,3 +48,6 @@ export const AnimatedNode = <T extends keyof React.JSX.IntrinsicElements = "div"
     </Tag>
   );
 };
+
+export type { AnimatedNodeProps };
+export { AnimatedNode };

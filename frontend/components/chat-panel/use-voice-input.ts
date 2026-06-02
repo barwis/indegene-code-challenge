@@ -5,7 +5,7 @@ type UseVoiceInputProps = {
   onError: (message: string) => void;
 };
 
-export type UseVoiceInputReturn = {
+type UseVoiceInputReturn = {
   isSupported: boolean;
   isListening: boolean;
   startListening: () => void;
@@ -74,3 +74,5 @@ export const useVoiceInput = ({
 
   return { isSupported, isListening, startListening, stopListening };
 };
+
+export type { UseVoiceInputReturn };

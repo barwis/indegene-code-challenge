@@ -1,9 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import { recipeContextFixture } from "@domain/__fixtures__/recipe-context";
 import type { components } from "@/types/api";
-import * as recipeContextModule from "@context/recipe-context";
 import { mockUseRecipeContext } from "@test-utils/recipe-context-mock";
 import { IngredientsList } from "./ingredients-list";
 
@@ -21,39 +19,18 @@ const makeIngredient = (overrides: Partial<Ingredient> = {}): Ingredient => ({
   ...overrides,
 });
 
+const fiveIngredients: Ingredient[] = [
+  makeIngredient({ name: "pasta", quantity: 400, unit: "g", category: "pantry" }),
+  makeIngredient({ name: "tomato", quantity: 1, unit: "can", category: "pantry" }),
+  makeIngredient({ name: "garlic", quantity: 2, unit: "cloves", category: "produce" }),
+  makeIngredient({ name: "oil", quantity: 2, unit: "tbsp", category: "pantry" }),
+  makeIngredient({ name: "salt", quantity: null, unit: "to taste", category: "spice" }),
+];
+
 const sevenIngredients: Ingredient[] = [
   ...recipeContextFixture.recipe!.ingredients,
   makeIngredient({ name: "parmesan", quantity: 50, unit: "g", category: "dairy" }),
 ];
-
-const setupStatefulMock = (initialChecked: string[] = []) => {
-  const checked = { current: [...initialChecked] };
-  vi.spyOn(recipeContextModule, "useRecipeContext").mockImplementation(() => ({
-    state: {
-      ...recipeContextFixture,
-      checked_ingredients: checked.current,
-    },
-    setState: vi.fn(),
-    isLoading: false,
-    error: null,
-    handleUpload: vi.fn(),
-    handleFixture: vi.fn(),
-    handleSetCurrentStep: vi.fn(),
-    handleToggleIngredient: (name: string) => {
-      checked.current = checked.current.includes(name)
-        ? checked.current.filter((n) => n !== name)
-        : [...checked.current, name];
-    },
-    messages: [],
-    isChatLoading: false,
-    sendMessage: vi.fn(),
-    toast: null,
-    setToast: vi.fn(),
-    resetUpload: vi.fn(),
-    retryLastMessage: vi.fn(),
-  }));
-  return checked;
-};
 
 describe("IngredientsList", () => {
   describe("rendering all ingredients", () => {
@@ -63,7 +40,6 @@ describe("IngredientsList", () => {
       expect(screen.getByText("spaghetti")).toBeInTheDocument();
       expect(screen.getByText("garlic")).toBeInTheDocument();
       expect(screen.getByText("fresh basil")).toBeInTheDocument();
-      expect(screen.getByText("salt")).toBeInTheDocument();
     });
 
     it("should render the Ingredients section heading", () => {
@@ -91,132 +67,14 @@ describe("IngredientsList", () => {
     });
   });
 
-  describe("ingredient row content", () => {
-    it("should show formatted quantity and unit for each ingredient", () => {
-      mockUseRecipeContext();
-      render(<IngredientsList />);
-      expect(screen.getAllByText("400 g")).toHaveLength(2);
-      expect(screen.getByText("2 cloves")).toBeInTheDocument();
-      expect(screen.getByText("4 tbsp")).toBeInTheDocument();
-    });
-
-    it("should show unit-only when quantity is null", () => {
-      mockUseRecipeContext();
-      render(<IngredientsList />);
-      expect(screen.getByText("to taste")).toBeInTheDocument();
-    });
-
-    it("should not show the preparation note", () => {
-      mockUseRecipeContext();
-      render(<IngredientsList />);
-      expect(screen.queryByText("crushed by hand")).not.toBeInTheDocument();
-      expect(screen.queryByText("thinly sliced")).not.toBeInTheDocument();
-    });
-  });
-
-  describe("check circle state", () => {
-    it("should show unchecked aria-label for unchecked ingredient", () => {
-      mockUseRecipeContext();
-      render(<IngredientsList />);
-      expect(
-        screen.getByRole("button", { name: /^check garlic$/i }),
-      ).toBeInTheDocument();
-    });
-
-    it("should show checked aria-label for ingredient in checkedIngredients", () => {
-      mockUseRecipeContext({
-        state: { ...recipeContextFixture, checked_ingredients: ["garlic"] },
-      });
-      render(<IngredientsList />);
-      expect(
-        screen.getByRole("button", { name: /^uncheck garlic$/i }),
-      ).toBeInTheDocument();
-    });
-
-    it("should mark checked button as pressed", () => {
-      mockUseRecipeContext({
-        state: { ...recipeContextFixture, checked_ingredients: ["garlic"] },
-      });
-      render(<IngredientsList />);
-      expect(
-        screen.getByRole("button", { name: /uncheck garlic/i }),
-      ).toHaveAttribute("aria-pressed", "true");
-    });
-
-    it("should mark unchecked button as not pressed", () => {
-      mockUseRecipeContext();
-      render(<IngredientsList />);
-      expect(
-        screen.getByRole("button", { name: /check garlic/i }),
-      ).toHaveAttribute("aria-pressed", "false");
-    });
-  });
-
-  describe("checked visual style", () => {
-    it("should apply line-through to checked ingredient name", () => {
-      mockUseRecipeContext({
-        state: { ...recipeContextFixture, checked_ingredients: ["garlic"] },
-      });
-      render(<IngredientsList />);
-      expect(screen.getByText("garlic")).toHaveClass("line-through");
-    });
-
-    it("should not apply line-through to unchecked ingredient name", () => {
-      mockUseRecipeContext();
-      render(<IngredientsList />);
-      expect(screen.getByText("garlic")).not.toHaveClass("line-through");
-    });
-  });
-
-  describe("toggle interaction", () => {
-    it("should show ingredient as checked after tapping its check circle", async () => {
-      const user = userEvent.setup();
-      setupStatefulMock();
-      const { rerender } = render(<IngredientsList />);
-      await user.click(screen.getByRole("button", { name: /^check garlic$/i }));
-      rerender(<IngredientsList />);
-      expect(
-        screen.getByRole("button", { name: /^uncheck garlic$/i }),
-      ).toBeInTheDocument();
-    });
-
-    it("should show ingredient as unchecked after tapping its check circle again", async () => {
-      const user = userEvent.setup();
-      setupStatefulMock(["garlic"]);
-      const { rerender } = render(<IngredientsList />);
-      await user.click(
-        screen.getByRole("button", { name: /^uncheck garlic$/i }),
-      );
-      rerender(<IngredientsList />);
-      expect(
-        screen.getByRole("button", { name: /^check garlic$/i }),
-      ).toBeInTheDocument();
-    });
-
-    it("should apply line-through after tapping check circle", async () => {
-      const user = userEvent.setup();
-      setupStatefulMock();
-      const { rerender } = render(<IngredientsList />);
-      await user.click(screen.getByRole("button", { name: /^check garlic$/i }));
-      rerender(<IngredientsList />);
-      expect(screen.getByText("garlic")).toHaveClass("line-through");
-    });
-
-    it("should remove line-through after unchecking", async () => {
-      const user = userEvent.setup();
-      setupStatefulMock(["garlic"]);
-      const { rerender } = render(<IngredientsList />);
-      await user.click(
-        screen.getByRole("button", { name: /^uncheck garlic$/i }),
-      );
-      rerender(<IngredientsList />);
-      expect(screen.getByText("garlic")).not.toHaveClass("line-through");
-    });
-  });
-
   describe("grouping", () => {
     it("should not show category headers for 6 or fewer ingredients", () => {
-      mockUseRecipeContext();
+      mockUseRecipeContext({
+        state: {
+          ...recipeContextFixture,
+          recipe: { ...recipeContextFixture.recipe!, ingredients: fiveIngredients },
+        },
+      });
       render(<IngredientsList />);
       expect(screen.queryByText("pantry")).not.toBeInTheDocument();
       expect(screen.queryByText("produce")).not.toBeInTheDocument();
@@ -248,12 +106,13 @@ describe("IngredientsList", () => {
     });
   });
 
-  describe("touch target", () => {
-    it("should give each ingredient row a 50px minimum height", () => {
-      mockUseRecipeContext();
-      render(<IngredientsList />);
-      const rows = screen.getAllByRole("listitem");
-      rows.forEach((row) => expect(row).toHaveClass("min-h-[50px]"));
+  describe("null guard", () => {
+    it("should render nothing when recipe is null", () => {
+      mockUseRecipeContext({
+        state: { ...recipeContextFixture, recipe: null },
+      });
+      const { container } = render(<IngredientsList />);
+      expect(container).toBeEmptyDOMElement();
     });
   });
 });

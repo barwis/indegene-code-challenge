@@ -1,7 +1,7 @@
-// Using vitest with React Testing Library per project test conventions (CONTEXT.md)
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Tab, Tabs } from "./tabs";
+import { Tab } from "./tab";
+import { Tabs } from "./tabs";
 
 const renderTabs = (defaultActiveTab?: string) =>
   render(

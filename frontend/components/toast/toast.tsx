@@ -5,7 +5,7 @@ import { useRecipeContext } from "@context/recipe-context";
 
 const TOAST_DURATION_MS = 4000;
 
-export const Toast = () => {
+const Toast = () => {
   const { toast, setToast, retryLastMessage } = useRecipeContext();
 
   useEffect(() => {
@@ -45,3 +45,5 @@ export const Toast = () => {
     </div>
   );
 };
+
+export { Toast };

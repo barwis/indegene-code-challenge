@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRecipeContext } from "@context/recipe-context";
 import { AnimatedNode } from "@components";
 
-export const UploadRecipe = () => {
+const UploadRecipe = () => {
   const { handleUpload, handleFixture, isLoading, error, resetUpload } =
     useRecipeContext();
   const [isDragOver, setIsDragOver] = useState(false);
@@ -159,3 +159,5 @@ export const UploadRecipe = () => {
     </main>
   );
 };
+
+export { UploadRecipe };
