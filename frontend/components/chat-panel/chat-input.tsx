@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { Mic, ArrowRight } from "lucide-react";
+import { useRecipeContext } from "@context/recipe-context";
 import { useTextareaAutoResize } from "./use-textarea-auto-resize";
 
 type ChatInputProps = {
@@ -22,12 +24,17 @@ const ChatInput = ({
   isListening,
   onMicClick,
 }: ChatInputProps) => {
+  const { chatInputRef } = useRecipeContext();
   const hasText = value.trim().length > 0;
   const canSend = hasText && !disabled;
   const showMic = isMicSupported && !hasText;
   const isInputDisabled = disabled || isListening;
 
   const textareaRef = useTextareaAutoResize(value);
+
+  useEffect(() => {
+    chatInputRef.current = textareaRef.current;
+  }, [chatInputRef, textareaRef]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {

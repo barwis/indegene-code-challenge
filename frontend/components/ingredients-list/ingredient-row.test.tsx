@@ -1,10 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { vi } from "vitest";
+import { vi, beforeEach } from "vitest";
 import type { components } from "@/types/api";
 import { IngredientRow } from "./ingredient-row";
 
 type Ingredient = components["schemas"]["Ingredient"];
+
+beforeEach(() => {
+  window.matchMedia = vi.fn().mockReturnValue({ matches: false });
+});
 
 const makeIngredient = (overrides: Partial<Ingredient> = {}): Ingredient => ({
   name: "garlic",
@@ -77,14 +81,14 @@ describe("IngredientRow", () => {
       render(
         <IngredientRow ingredient={makeIngredient()} isChecked={false} onToggle={vi.fn()} delay={0} />,
       );
-      expect(screen.getByRole("button")).toHaveAttribute("aria-pressed", "false");
+      expect(screen.getByRole("button", { name: /^check garlic$/i })).toHaveAttribute("aria-pressed", "false");
     });
 
     it("should set aria-pressed to true when checked", () => {
       render(
         <IngredientRow ingredient={makeIngredient()} isChecked={true} onToggle={vi.fn()} delay={0} />,
       );
-      expect(screen.getByRole("button")).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByRole("button", { name: /^uncheck garlic$/i })).toHaveAttribute("aria-pressed", "true");
     });
   });
 
@@ -111,8 +115,53 @@ describe("IngredientRow", () => {
       render(
         <IngredientRow ingredient={makeIngredient()} isChecked={false} onToggle={onToggle} delay={0} />,
       );
-      await user.click(screen.getByRole("button"));
+      await user.click(screen.getByRole("button", { name: /^check garlic$/i }));
       expect(onToggle).toHaveBeenCalledWith("garlic");
+    });
+  });
+
+  describe("substitute chip", () => {
+    it("should not render a substitute chip when onSubstitute is not provided", () => {
+      render(
+        <IngredientRow ingredient={makeIngredient()} isChecked={false} onToggle={vi.fn()} delay={0} />,
+      );
+      expect(screen.queryByRole("button", { name: /substitute garlic/i })).not.toBeInTheDocument();
+    });
+
+    it("should render a substitute chip when onSubstitute is provided", () => {
+      render(
+        <IngredientRow ingredient={makeIngredient()} isChecked={false} onToggle={vi.fn()} onSubstitute={vi.fn()} delay={0} />,
+      );
+      expect(screen.getByRole("button", { name: /substitute garlic/i })).toBeInTheDocument();
+    });
+
+    it("should call onSubstitute with the ingredient name when chip is clicked", async () => {
+      const user = userEvent.setup();
+      const onSubstitute = vi.fn();
+      render(
+        <IngredientRow ingredient={makeIngredient()} isChecked={false} onToggle={vi.fn()} onSubstitute={onSubstitute} delay={0} />,
+      );
+      await user.click(screen.getByRole("button", { name: /substitute garlic/i }));
+      expect(onSubstitute).toHaveBeenCalledWith("garlic");
+    });
+
+    it("should apply spin animation class when clicked and motion is allowed", async () => {
+      const user = userEvent.setup();
+      render(
+        <IngredientRow ingredient={makeIngredient()} isChecked={false} onToggle={vi.fn()} onSubstitute={vi.fn()} delay={0} />,
+      );
+      await user.click(screen.getByRole("button", { name: /substitute garlic/i }));
+      expect(screen.getByTestId("substitute-icon")).toHaveClass("motion-safe:animate-spin-once");
+    });
+
+    it("should not apply spin animation class when prefers-reduced-motion is active", async () => {
+      window.matchMedia = vi.fn().mockReturnValue({ matches: true });
+      const user = userEvent.setup();
+      render(
+        <IngredientRow ingredient={makeIngredient()} isChecked={false} onToggle={vi.fn()} onSubstitute={vi.fn()} delay={0} />,
+      );
+      await user.click(screen.getByRole("button", { name: /substitute garlic/i }));
+      expect(screen.getByTestId("substitute-icon")).not.toHaveClass("motion-safe:animate-spin-once");
     });
   });
 });

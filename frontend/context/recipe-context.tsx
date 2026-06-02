@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useRef } from "react";
-import type { PropsWithChildren } from "react";
+import type { PropsWithChildren, RefObject } from "react";
 import { EventType } from "@ag-ui/core";
 import type { AGUIEvent, RunAgentInput } from "@ag-ui/core";
 import { recipeContextFixture } from "@domain/__fixtures__/recipe-context";
@@ -36,6 +36,7 @@ export type RecipeContextValue = {
   handleFixture: () => void;
   handleToggleIngredient: (name: string) => void;
   handleSetCurrentStep: (index: number) => void;
+  handleSubstitute: (name: string) => void;
   messages: ChatMessage[];
   isChatLoading: boolean;
   sendMessage: (content: string) => void;
@@ -44,6 +45,10 @@ export type RecipeContextValue = {
   resetUpload: () => void;
   resetRecipe: () => void;
   retryLastMessage: () => void;
+  isChatOpen: boolean;
+  openChat: () => void;
+  closeChat: () => void;
+  chatInputRef: RefObject<HTMLTextAreaElement | null>;
 };
 
 const Ctx = createContext<RecipeContextValue | null>(null);
@@ -55,6 +60,8 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [toast, setToast] = useState<ToastConfig | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const chatInputRef = useRef<HTMLTextAreaElement | null>(null);
   const threadId = useRef(crypto.randomUUID());
   const lastUserMessageRef = useRef<string | null>(null);
   const isStreamingRef = useRef(false);
@@ -144,6 +151,15 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
 
   const handleSetCurrentStep = (index: number) => {
     setState((prev) => ({ ...prev, current_step: index }));
+  };
+
+  const openChat = () => setIsChatOpen(true);
+  const closeChat = () => setIsChatOpen(false);
+
+  const handleSubstitute = (name: string) => {
+    sendMessage(`Substitute ${name}`);
+    setIsChatOpen(true);
+    chatInputRef.current?.focus();
   };
 
   const streamResponse = (outgoing: ChatMessage[]): void => {
@@ -276,6 +292,7 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
     setMessages([]);
     setError(null);
     setToast(null);
+    setIsChatOpen(false);
   };
 
   return (
@@ -289,6 +306,7 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
         handleFixture,
         handleToggleIngredient,
         handleSetCurrentStep,
+        handleSubstitute,
         messages,
         isChatLoading,
         sendMessage,
@@ -297,6 +315,10 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
         resetUpload,
         resetRecipe,
         retryLastMessage,
+        isChatOpen,
+        openChat,
+        closeChat,
+        chatInputRef,
       }}
     >
       {children}

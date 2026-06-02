@@ -3,7 +3,8 @@ import { groupIngredientsByCategory } from "@domain/ingredients";
 import { IngredientRow } from "./ingredient-row";
 
 const IngredientsList = () => {
-  const { state, handleToggleIngredient } = useRecipeContext();
+  const { state, handleToggleIngredient, handleSubstitute } =
+    useRecipeContext();
   const { recipe, checked_ingredients } = state;
 
   if (!recipe) return null;
@@ -37,17 +38,18 @@ const IngredientsList = () => {
       {groupsWithOffset.map(({ category, items, offset }) => (
         <div key={category || "all"}>
           {useGroups && category && (
-            <h3 className="px-6 pb-1 pt-3 text-xs font-semibold uppercase tracking-wider text-stone-500">
+            <h3 className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-stone-500">
               {category}
             </h3>
           )}
-          <ul className="divide-y divide-stone-100">
+          <ul className="divide-y divide-stone-200">
             {items.map((ingredient, index) => (
               <IngredientRow
                 key={`${category || "all"}-${index}`}
                 ingredient={ingredient}
                 isChecked={checkedSet.has(ingredient.name)}
                 onToggle={handleToggleIngredient}
+                onSubstitute={handleSubstitute}
                 delay={(offset + index) * 150 + 100}
               />
             ))}

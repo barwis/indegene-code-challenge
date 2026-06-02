@@ -106,6 +106,15 @@ describe("IngredientsList", () => {
     });
   });
 
+  describe("substitute chips", () => {
+    it("should render a substitute chip for each ingredient", () => {
+      mockUseRecipeContext();
+      render(<IngredientsList />);
+      const total = recipeContextFixture.recipe!.ingredients.length;
+      expect(screen.getAllByRole("button", { name: /^substitute /i })).toHaveLength(total);
+    });
+  });
+
   describe("null guard", () => {
     it("should render nothing when recipe is null", () => {
       mockUseRecipeContext({
