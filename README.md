@@ -1,4 +1,37 @@
-# Recipe Companion Challenge
+# My submission
+
+A tablet-first cooking companion. Upload a recipe (PDF or plain text), it parses into a two-column layout, and a cooking agent handles scaling, substitution, and step-by-step guidance through chat. Backend was provided; my work was the frontend.
+
+## Design
+
+Every decision comes from the use context in the README: one hand occupied, arm's-length viewing, variable kitchen lighting. 50px touch targets, high contrast, generous type (Lora + Nunito), split panel so recipe and chat are always visible without navigating. Terracotta (`#C1684E`) as the accent - warm and readable in both bright and dim conditions, light grey background to reduce screen glare.
+
+## Key decisions
+
+**Raw AG-UI over CopilotKit** - The first thing I built was a CopilotKit proxy route. I removed it. The backend exposes an AG-UI endpoint - CopilotKit's React packages sit on top of that protocol, but they also bring their own state management, creating two sources of truth for recipe state. In hindsight the README says "AG-UI endpoint", not "CopilotKit endpoint" - the compatibility note means the protocol is compatible, not that you should use the full React stack. Going raw meant writing the SSE stream directly - more code, every state transition visible and testable.
+
+**Hidden message to seed the agent** - The backend gives the agent only a high-level summary (title, serving count, ingredient count), not the full recipe. A hidden JSON dump injected at upload time lets the agent answer detail questions and gives it a before-state for the first chat turn. Without it, asking "change to 2 servings" on a fresh upload gets back "already at 2 servings" even though the tool changed it correctly - upload and chat are separate chains and the agent's thread is otherwise empty on turn one.
+
+## What I'd improve with more time
+
+- **Visual design** - foundations are right but the finish is lacking; functionality took priority and it shows at first glance
+- **Session persistence** - navigating away loses everything; `localStorage` for state and messages would fix that
+- **Agent-controlled tabs** - no way to say "switch to steps"; a small set of UI-control tools would make it genuinely hands-free
+- **Chat auto-scroll** - should pause when the user scrolls up mid-stream and resume when they return to the bottom
+
+---
+
+Genuinely enjoyed this one. Reading the AG-UI event stream directly, keeping agent state in sync with the UI, and debugging why the first chat message was getting the wrong answer - that kind of problem is satisfying to work through.
+
+---
+
+---
+
+---
+
+---
+
+## Recipe Companion Challenge
 
 Build a cooking companion. A user drops in a recipe (PDF or text), your app extracts it, shows it beautifully, and lets the user chat with an agent that can scale servings, swap ingredients, and walk them through the steps.
 
