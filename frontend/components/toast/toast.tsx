@@ -24,9 +24,9 @@ const Toast = () => {
   return (
     <div
       role="alert"
-      className="fixed bottom-6 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 shadow-md"
+      className="fixed bottom-6 left-1/2 z-50 flex w-[calc(100vw-3rem)] max-w-sm -translate-x-1/2 items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 shadow-md"
     >
-      <span>{toast.message}</span>
+      <span className="flex-1">{toast.message}</span>
       {toast.showRetry && (
         <button
           onClick={handleRetry}
