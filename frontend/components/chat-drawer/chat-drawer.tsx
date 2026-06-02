@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MessageCircle, X } from "lucide-react";
 import { ChatPanel } from "@components";
 
-export const ChatDrawer = () => {
+const ChatDrawer = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -61,3 +61,5 @@ export const ChatDrawer = () => {
     </div>
   );
 };
+
+export { ChatDrawer };

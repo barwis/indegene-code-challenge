@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 
-export const useAutoResize = (value: string, maxRows = 4) => {
+const useTextareaAutoResize = (value: string, maxRows = 4) => {
   const ref = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -28,3 +28,5 @@ export const useAutoResize = (value: string, maxRows = 4) => {
 
   return ref;
 };
+
+export { useTextareaAutoResize };

@@ -3,11 +3,11 @@ import { ChefHat, Flame, Timer, Users } from "lucide-react";
 
 type Recipe = components["schemas"]["Recipe"];
 
-export type RecipeHeaderProps = {
+type RecipeHeaderProps = {
   recipe: Recipe;
 };
 
-export const RecipeHeader = ({ recipe }: RecipeHeaderProps) => {
+const RecipeHeader = ({ recipe }: RecipeHeaderProps) => {
   const {
     title,
     description,
@@ -72,3 +72,6 @@ export const RecipeHeader = ({ recipe }: RecipeHeaderProps) => {
     </header>
   );
 };
+
+export type { RecipeHeaderProps };
+export { RecipeHeader };

@@ -4,22 +4,16 @@ import {
   useState,
   useId,
   type PropsWithChildren,
-  type ReactNode,
 } from "react";
+import { Tab } from "./tab";
+import type { TabProps } from "./tab";
 
-export type TabProps = PropsWithChildren<{
-  tabId: string;
-  tabTitle?: ReactNode;
-}>;
-
-export const Tab = (_props: TabProps) => null;
-
-export type TabsProps = PropsWithChildren<{
+type TabsProps = PropsWithChildren<{
   defaultActiveTab?: string;
   ariaLabel?: string;
 }>;
 
-export const Tabs = ({ children, defaultActiveTab, ariaLabel }: TabsProps) => {
+const Tabs = ({ children, defaultActiveTab, ariaLabel }: TabsProps) => {
   const uid = useId();
 
   const tabs = Children.toArray(children)
@@ -77,3 +71,6 @@ export const Tabs = ({ children, defaultActiveTab, ariaLabel }: TabsProps) => {
     </div>
   );
 };
+
+export type { TabsProps };
+export { Tabs };
