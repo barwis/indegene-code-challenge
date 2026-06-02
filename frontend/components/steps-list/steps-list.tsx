@@ -63,7 +63,7 @@ const StepRow = ({ step, index, currentStep, onJump }: StepRowProps) => {
   ].join(" ");
 
   const rowClass = [
-    "flex w-full items-start gap-4 px-6 py-4 text-left",
+    "flex w-full flex-col items-center gap-4 px-6 py-4 text-left md:flex-row md:items-start",
     "transition-opacity duration-[280ms] ease-stagger",
     isDone ? "opacity-50" : !isActive ? "opacity-60" : "",
   ].join(" ").trim();
@@ -90,7 +90,7 @@ const StepRow = ({ step, index, currentStep, onJump }: StepRowProps) => {
         aria-current={isActive ? "step" : undefined}
       >
         <span className={circleClass}>{step_number}</span>
-        <span className="flex flex-1 flex-col">
+        <span className="flex w-full flex-col md:flex-1 md:w-auto">
           <span className={instructionClass}>{instruction}</span>
           {isActive && (
             <span className="motion-safe:animate-in motion-safe:fade-in-0 duration-200">

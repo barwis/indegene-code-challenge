@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ChatDrawer,
   ChatPanel,
   RecipeHeader,
   Tabs,
@@ -18,8 +19,8 @@ const HomeContent = () => {
 
   if (recipe) {
     return (
-      <div className="flex h-full">
-        <div className="flex flex-[1.8] flex-col overflow-hidden bg-accent-50 motion-safe:animate-in motion-safe:fade-in-0 duration-500">
+      <div className="flex h-full flex-col md:flex-row">
+        <div className="flex flex-1 flex-col overflow-y-auto bg-accent-50 motion-safe:animate-in motion-safe:fade-in-0 duration-500 md:flex-[1.8] md:overflow-hidden">
           <RecipeHeader recipe={recipe} />
           <Tabs ariaLabel="Recipe sections">
             <Tab tabId="ingredients" tabTitle="Ingredients">
@@ -30,9 +31,10 @@ const HomeContent = () => {
             </Tab>
           </Tabs>
         </div>
-        <div className="flex flex-1 flex-col border-l border-stone-200 bg-stone-100">
+        <div className="hidden md:flex flex-1 flex-col border-l border-stone-200 bg-stone-100">
           <ChatPanel />
         </div>
+        <ChatDrawer />
       </div>
     );
   }
