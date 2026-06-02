@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Loader2, Upload } from "lucide-react";
 import { useRecipeContext } from "@context/recipe-context";
 import { AnimatedNode } from "@components";
 
@@ -79,44 +80,12 @@ const UploadRecipe = () => {
 
         {isLoading ? (
           <>
-            <svg
-              aria-hidden="true"
-              className="h-10 w-10 animate-spin text-accent-500"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-              />
-            </svg>
+            <Loader2 aria-hidden="true" className="h-10 w-10 animate-spin text-accent-500" />
             <p className="text-stone-600">Parsing your recipe&hellip;</p>
           </>
         ) : (
           <>
-            <svg
-              aria-hidden="true"
-              className="h-10 w-10 text-stone-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
-              />
-            </svg>
+            <Upload aria-hidden="true" className="h-10 w-10 text-stone-600" />
             <p className="text-stone-600">
               Drop your recipe here or click to browse
             </p>
