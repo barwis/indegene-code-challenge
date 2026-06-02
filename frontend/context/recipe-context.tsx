@@ -12,6 +12,11 @@ type RecipeState = components["schemas"]["RecipeContext"];
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const ALLOWED_EXTENSIONS = [".pdf", ".txt"];
+const TOOL_TAB_MAP: Record<string, string> = {
+  scale_recipe: "ingredients",
+  substitute_ingredient: "ingredients",
+  update_cooking_progress: "steps",
+};
 const INITIAL_STATE: RecipeState = { current_step: 0, cooking_started: false };
 
 export type ChatMessage = {
@@ -49,6 +54,8 @@ export type RecipeContextValue = {
   openChat: () => void;
   closeChat: () => void;
   chatInputRef: RefObject<HTMLTextAreaElement | null>;
+  activeTab: string;
+  setActiveTab: (id: string) => void;
 };
 
 const Ctx = createContext<RecipeContextValue | null>(null);
@@ -61,6 +68,7 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [toast, setToast] = useState<ToastConfig | null>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("ingredients");
   const chatInputRef = useRef<HTMLTextAreaElement | null>(null);
   const threadId = useRef(crypto.randomUUID());
   const lastUserMessageRef = useRef<string | null>(null);
@@ -208,7 +216,10 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
               continue;
             }
 
-            if (event.type === EventType.TEXT_MESSAGE_START) {
+            if (event.type === EventType.TOOL_CALL_START) {
+              const tabId = TOOL_TAB_MAP[event.toolCallName];
+              if (tabId) setActiveTab(tabId);
+            } else if (event.type === EventType.TEXT_MESSAGE_START) {
               assistantMsgId = event.messageId;
               const id = event.messageId;
               setMessages((prev) => [
@@ -293,6 +304,7 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
     setError(null);
     setToast(null);
     setIsChatOpen(false);
+    setActiveTab("ingredients");
   };
 
   return (
@@ -319,6 +331,8 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
         openChat,
         closeChat,
         chatInputRef,
+        activeTab,
+        setActiveTab,
       }}
     >
       {children}

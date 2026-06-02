@@ -27,6 +27,8 @@ export const mockUseRecipeContext = (
     openChat: vi.fn(),
     closeChat: vi.fn(),
     chatInputRef: { current: null },
+    activeTab: "ingredients",
+    setActiveTab: vi.fn(),
     ...overrides,
   });
 };
