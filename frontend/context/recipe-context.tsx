@@ -19,6 +19,21 @@ const TOOL_TAB_MAP: Record<string, string> = {
 };
 const INITIAL_STATE: RecipeState = { current_step: 0, cooking_started: false };
 
+const buildInitialMessages = (recipe: RecipeState["recipe"]): ChatMessage[] => [
+  {
+    id: crypto.randomUUID(),
+    role: "assistant",
+    content: `Recipe context: ${JSON.stringify(recipe)}`,
+    hidden: true,
+  },
+  {
+    id: crypto.randomUUID(),
+    role: "assistant",
+    content:
+      "Your recipe is ready! Ask me anything - scaling, substitutions, or just say \"let's start cooking\" when you're ready.",
+  },
+];
+
 export type ChatMessage = {
   id: string;
   role: "user" | "assistant";
@@ -105,20 +120,7 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
       const json = (await res.json()) as { state: RecipeState };
       setState(json.state);
       if (json.state.recipe) {
-        setMessages([
-          {
-            id: crypto.randomUUID(),
-            role: "assistant",
-            content: `Recipe context: ${JSON.stringify(json.state.recipe)}`,
-            hidden: true,
-          },
-          {
-            id: crypto.randomUUID(),
-            role: "assistant",
-            content:
-              "Your recipe is ready! Ask me anything - scaling, substitutions, or just say \"let's start cooking\" when you're ready.",
-          },
-        ]);
+        setMessages(buildInitialMessages(json.state.recipe));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -130,20 +132,7 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
   const handleFixture = () => {
     setState(recipeContextFixture);
     if (recipeContextFixture.recipe) {
-      setMessages([
-        {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: `Recipe context: ${JSON.stringify(recipeContextFixture.recipe)}`,
-          hidden: true,
-        },
-        {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content:
-            "Your recipe is ready! Ask me anything - scaling, substitutions, or just say \"let's start cooking\" when you're ready.",
-        },
-      ]);
+      setMessages(buildInitialMessages(recipeContextFixture.recipe));
     }
   };
 
