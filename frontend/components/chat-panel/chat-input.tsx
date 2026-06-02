@@ -44,9 +44,9 @@ const ChatInput = ({
   };
 
   return (
-    <div className="flex items-center gap-2 border-t border-stone-200 p-4">
+    <div className="flex items-end gap-2 border-t border-stone-200 p-4">
       <div
-        className={`flex min-h-[50px] flex-1 items-center overflow-hidden rounded-full border border-stone-200 bg-white focus-within:ring-2 focus-within:ring-accent-400 ${isInputDisabled ? "opacity-50" : ""}`}
+        className={`flex min-h-[50px] flex-1 items-center overflow-hidden rounded-[25px] border border-stone-200 bg-white focus-within:ring-2 focus-within:ring-accent-400 ${isInputDisabled ? "opacity-50" : ""}`}
       >
         <textarea
           ref={textareaRef}
@@ -57,7 +57,7 @@ const ChatInput = ({
           placeholder="Ask your cooking assistant..."
           aria-label="Chat message"
           disabled={isInputDisabled}
-          className="block w-full resize-none bg-transparent px-4 py-3 text-stone-900 focus:outline-none"
+          className="block w-full resize-none bg-transparent px-4 py-[11px] text-stone-900  mr-1 focus:outline-none"
         />
       </div>
       {showMic ? (
