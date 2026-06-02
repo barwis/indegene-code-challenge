@@ -58,9 +58,9 @@ const ChatInput = ({
   };
 
   return (
-    <div className="flex items-end gap-2 border-t border-stone-200 p-4">
+    <div className="flex items-center gap-2 border-t border-stone-200 p-4">
       <div
-        className={`flex-1 overflow-hidden rounded-full border border-stone-200 bg-white focus-within:ring-2 focus-within:ring-accent-400 ${isInputDisabled ? "opacity-50" : ""}`}
+        className={`flex min-h-[50px] flex-1 items-center overflow-hidden rounded-full border border-stone-200 bg-white focus-within:ring-2 focus-within:ring-accent-400 ${isInputDisabled ? "opacity-50" : ""}`}
       >
         <textarea
           ref={textareaRef}
