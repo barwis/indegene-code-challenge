@@ -198,6 +198,7 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
         const decoder = new TextDecoder();
         let buffer = "";
         let assistantMsgId: string | null = null;
+        let pendingTab: string | null = null;
 
         while (true) {
           const { done, value } = await reader.read();
@@ -217,8 +218,7 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
             }
 
             if (event.type === EventType.TOOL_CALL_START) {
-              const tabId = TOOL_TAB_MAP[event.toolCallName];
-              if (tabId) setActiveTab(tabId);
+              pendingTab = TOOL_TAB_MAP[event.toolCallName] ?? null;
             } else if (event.type === EventType.TEXT_MESSAGE_START) {
               assistantMsgId = event.messageId;
               const id = event.messageId;
@@ -238,7 +238,18 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
               );
             } else if (event.type === EventType.STATE_SNAPSHOT) {
               // snapshot is typed `any` in ag-ui - it is schema-agnostic by design
-              setState(event.snapshot as RecipeState);
+              const newState = event.snapshot as RecipeState;
+              setState(newState);
+              if (pendingTab) { setActiveTab(pendingTab); pendingTab = null; }
+              if (newState.recipe) {
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.hidden
+                      ? { ...m, content: `Recipe context: ${JSON.stringify(newState.recipe)}` }
+                      : m,
+                  ),
+                );
+              }
             } else if (event.type === EventType.RUN_FINISHED) {
               endStream();
             }
