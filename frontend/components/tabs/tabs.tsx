@@ -10,10 +10,12 @@ import type { TabProps } from "./tab";
 
 type TabsProps = PropsWithChildren<{
   defaultActiveTab?: string;
+  activeTab?: string;
+  onTabChange?: (id: string) => void;
   ariaLabel?: string;
 }>;
 
-const Tabs = ({ children, defaultActiveTab, ariaLabel }: TabsProps) => {
+const Tabs = ({ children, defaultActiveTab, activeTab: controlledTab, onTabChange, ariaLabel }: TabsProps) => {
   const uid = useId();
 
   const tabs = Children.toArray(children)
@@ -23,11 +25,18 @@ const Tabs = ({ children, defaultActiveTab, ariaLabel }: TabsProps) => {
     )
     .map((child) => child.props);
 
-  const [activeTab, setActiveTab] = useState<string>(
+  const [internalTab, setInternalTab] = useState<string>(
     defaultActiveTab && tabs.some((t) => t.tabId === defaultActiveTab)
       ? defaultActiveTab
       : (tabs[0]?.tabId ?? ""),
   );
+
+  const activeTab = controlledTab ?? internalTab;
+
+  const handleTabClick = (tabId: string) => {
+    setInternalTab(tabId);
+    onTabChange?.(tabId);
+  };
 
   return (
     <div className="flex flex-col md:flex-1 md:min-h-0">
@@ -43,7 +52,7 @@ const Tabs = ({ children, defaultActiveTab, ariaLabel }: TabsProps) => {
             id={`${uid}-tab-${tabId}`}
             aria-selected={activeTab === tabId}
             aria-controls={`${uid}-panel-${tabId}`}
-            onClick={() => setActiveTab(tabId)}
+            onClick={() => handleTabClick(tabId)}
             className={[
               "min-h-[50px] px-6 text-sm font-medium transition-colors capitalize",
               activeTab === tabId

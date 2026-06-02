@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { vi } from "vitest";
 import { Tab } from "./tab";
 import { Tabs } from "./tabs";
 
@@ -147,6 +148,32 @@ describe("Tabs", () => {
       renderTabs();
       await user.click(screen.getByRole("tab", { name: "Second" }));
       expect(screen.getByText("First panel content")).not.toBeVisible();
+    });
+  });
+
+  describe("controlled mode", () => {
+    it("should show the panel matching the activeTab prop", () => {
+      render(
+        <Tabs activeTab="second" onTabChange={vi.fn()}>
+          <Tab tabId="first" tabTitle="First"><p>First panel</p></Tab>
+          <Tab tabId="second" tabTitle="Second"><p>Second panel</p></Tab>
+        </Tabs>,
+      );
+      expect(screen.getByRole("tab", { name: "Second" })).toHaveAttribute("aria-selected", "true");
+      expect(screen.getByRole("tab", { name: "First" })).toHaveAttribute("aria-selected", "false");
+    });
+
+    it("should call onTabChange with the clicked tab id", async () => {
+      const user = userEvent.setup();
+      const onTabChange = vi.fn();
+      render(
+        <Tabs activeTab="first" onTabChange={onTabChange}>
+          <Tab tabId="first" tabTitle="First"><p>First panel</p></Tab>
+          <Tab tabId="second" tabTitle="Second"><p>Second panel</p></Tab>
+        </Tabs>,
+      );
+      await user.click(screen.getByRole("tab", { name: "Second" }));
+      expect(onTabChange).toHaveBeenCalledWith("second");
     });
   });
 
