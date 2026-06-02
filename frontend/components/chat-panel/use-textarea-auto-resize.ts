@@ -1,9 +1,9 @@
-import { useRef, useEffect } from "react";
+import { useRef, useLayoutEffect } from "react";
 
 const useTextareaAutoResize = (value: string, maxRows = 4) => {
   const ref = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
 

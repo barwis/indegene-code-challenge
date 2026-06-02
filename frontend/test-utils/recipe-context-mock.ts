@@ -14,6 +14,7 @@ export const mockUseRecipeContext = (
     handleFixture: vi.fn(),
     handleToggleIngredient: vi.fn(),
     handleSetCurrentStep: vi.fn(),
+    handleSubstitute: vi.fn(),
     messages: [],
     isChatLoading: false,
     sendMessage: vi.fn(),
@@ -22,6 +23,10 @@ export const mockUseRecipeContext = (
     resetUpload: vi.fn(),
     resetRecipe: vi.fn(),
     retryLastMessage: vi.fn(),
+    isChatOpen: false,
+    openChat: vi.fn(),
+    closeChat: vi.fn(),
+    chatInputRef: { current: null },
     ...overrides,
   });
 };

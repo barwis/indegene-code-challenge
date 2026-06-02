@@ -1,22 +1,22 @@
 "use client";
 
-import { useState } from "react";
 import { MessageCircle, X } from "lucide-react";
 import { ChatPanel } from "@components";
+import { useRecipeContext } from "@context/recipe-context";
 
 const ChatDrawer = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const { isChatOpen, openChat, closeChat } = useRecipeContext();
 
   return (
     <div className="md:hidden">
       <button
-        onClick={() => setIsOpen(true)}
+        onClick={openChat}
         aria-label="Ask assistant"
         className={[
           "fixed bottom-6 right-6 z-40 flex min-h-[50px] min-w-[50px] items-center gap-2 rounded-full",
           "bg-accent-500 px-5 text-white shadow-lg",
           "transition-[opacity,transform] duration-200",
-          isOpen ? "pointer-events-none scale-75 opacity-0" : "scale-100 opacity-100",
+          isChatOpen ? "pointer-events-none scale-75 opacity-0" : "scale-100 opacity-100",
         ].join(" ")}
       >
         <MessageCircle size={20} />
@@ -30,11 +30,11 @@ const ChatDrawer = () => {
         className={[
           "fixed bottom-0 left-0 right-0 z-50 flex h-[50vh] flex-col rounded-t-2xl bg-stone-100 shadow-2xl",
           "transition-transform duration-300 ease-stagger",
-          isOpen ? "translate-y-0" : "translate-y-full",
+          isChatOpen ? "translate-y-0" : "translate-y-full",
         ].join(" ")}
       >
         <button
-          onClick={() => setIsOpen(false)}
+          onClick={closeChat}
           aria-label="Close assistant"
           className="flex w-full items-center justify-center pb-2 pt-3"
         >
@@ -46,7 +46,7 @@ const ChatDrawer = () => {
             Cooking assistant
           </span>
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={closeChat}
             aria-label="Close assistant"
             className="flex h-8 w-8 items-center justify-center rounded-full text-stone-500 hover:bg-stone-200"
           >

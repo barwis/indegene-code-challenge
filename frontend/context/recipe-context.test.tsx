@@ -210,6 +210,38 @@ describe("RecipeProvider / useRecipeContext", () => {
     });
   });
 
+  describe("resetRecipe", () => {
+    it("should set isChatOpen to false", () => {
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
+      act(() => {
+        result.current.handleSubstitute("garlic");
+      });
+      expect(result.current.isChatOpen).toBe(true);
+      act(() => {
+        result.current.resetRecipe();
+      });
+      expect(result.current.isChatOpen).toBe(false);
+    });
+  });
+
+  describe("handleSubstitute", () => {
+    it("should send a user message with 'Substitute [name]'", () => {
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
+      act(() => {
+        result.current.handleSubstitute("garlic");
+      });
+      expect(result.current.messages.some((m) => m.role === "user" && m.content === "Substitute garlic")).toBe(true);
+    });
+
+    it("should set isChatOpen to true", () => {
+      const { result } = renderHook(() => useRecipeContext(), { wrapper });
+      act(() => {
+        result.current.handleSubstitute("garlic");
+      });
+      expect(result.current.isChatOpen).toBe(true);
+    });
+  });
+
   describe("handleUpload — failure", () => {
     it("should set error from the response detail field", async () => {
       vi.stubGlobal(

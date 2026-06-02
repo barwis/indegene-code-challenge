@@ -28,6 +28,7 @@
   --animate-slide-right: slide-right 280ms var(--ease-stagger) both;
   --animate-slide-up: slide-up 280ms var(--ease-stagger) both;
   --animate-slide-down: slide-down 280ms var(--ease-stagger) both;
+  --animate-spin-once: spin-once 400ms ease-out both;
 
   @keyframes slide-left {
     from {
@@ -68,5 +69,10 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  @keyframes spin-once {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
   }
 }
