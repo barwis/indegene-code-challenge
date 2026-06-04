@@ -54,7 +54,7 @@ const ChatInput = ({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask your cooking assistant..."
+          placeholder="Message"
           aria-label="Chat message"
           disabled={isInputDisabled}
           className="block w-full resize-none bg-transparent px-4 py-[11px] text-stone-900  mr-1 focus:outline-none"
