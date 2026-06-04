@@ -2,7 +2,7 @@ import type { components } from "@/types/api";
 
 type Ingredient = components["schemas"]["Ingredient"];
 
-export type IngredientGroup = {
+type IngredientGroup = {
   category: string;
   items: Ingredient[];
 };

@@ -1,50 +1,23 @@
 "use client";
 
-import { createContext, useContext, useState, useRef } from "react";
+import { createContext, useContext, useState, useRef, useEffect } from "react";
 import type { PropsWithChildren, RefObject } from "react";
-import { EventType } from "@ag-ui/core";
-import type { AGUIEvent, RunAgentInput } from "@ag-ui/core";
+import { useCoAgent, useCopilotChat } from "@copilotkit/react-core";
+import { TextMessage, MessageRole } from "@copilotkit/runtime-client-gql";
+import { CopilotKitProvider } from "@/app/copilotkit-provider";
 import { recipeContextFixture } from "@domain/__fixtures__/recipe-context";
 import { toggleCheckedIngredient } from "@domain/ingredients";
 import type { components } from "@/types/api";
 
 type RecipeState = components["schemas"]["RecipeContext"];
+type UploadResponse = components["schemas"]["UploadResponse"];
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const ALLOWED_EXTENSIONS = [".pdf", ".txt"];
-const TOOL_TAB_MAP: Record<string, string> = {
-  scale_recipe: "ingredients",
-  substitute_ingredient: "ingredients",
-  update_cooking_progress: "steps",
-};
 const INITIAL_STATE: RecipeState = { current_step: 0, cooking_started: false };
-
-const buildInitialMessages = (recipe: RecipeState["recipe"]): ChatMessage[] => [
-  {
-    id: crypto.randomUUID(),
-    role: "assistant",
-    content: `Recipe context: ${JSON.stringify(recipe)}`,
-    hidden: true,
-  },
-  {
-    id: crypto.randomUUID(),
-    role: "assistant",
-    content:
-      "Your recipe is ready! Ask me anything - scaling, substitutions, or just say \"let's start cooking\" when you're ready.",
-  },
-];
-
-export type ChatMessage = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  hidden?: boolean;
-  failed?: boolean;
-};
 
 export type ToastConfig = {
   message: string;
-  showRetry?: boolean;
 };
 
 export type RecipeContextValue = {
@@ -56,51 +29,190 @@ export type RecipeContextValue = {
   handleToggleIngredient: (name: string) => void;
   handleSetCurrentStep: (index: number) => void;
   handleSubstitute: (name: string) => void;
-  messages: ChatMessage[];
-  isChatLoading: boolean;
-  sendMessage: (content: string) => void;
   toast: ToastConfig | null;
   setToast: (config: ToastConfig | null) => void;
   resetUpload: () => void;
   resetRecipe: () => void;
-  retryLastMessage: () => void;
+  isChatOpen: boolean;
+  openChat: () => void;
+  closeChat: () => void;
+  activeTab: string;
+  setActiveTab: (id: string) => void;
+  chatInputRef: RefObject<HTMLTextAreaElement | null>;
+};
+
+const Ctx = createContext<RecipeContextValue | null>(null);
+
+// ── Inner component — must live inside <CopilotKit> ──────────────────────────
+
+type InnerProps = PropsWithChildren<{
+  uploadedState: RecipeState;
+  isLoading: boolean;
+  error: string | null;
+  handleUpload: (file: File) => Promise<void>;
+  resetUpload: () => void;
+  resetRecipeOuter: () => void;
   isChatOpen: boolean;
   openChat: () => void;
   closeChat: () => void;
   chatInputRef: RefObject<HTMLTextAreaElement | null>;
   activeTab: string;
   setActiveTab: (id: string) => void;
+  handleFixtureAction: () => void;
+}>;
+
+const RecipeStateInner = ({
+  children,
+  uploadedState,
+  isLoading,
+  error,
+  handleUpload,
+  resetUpload,
+  resetRecipeOuter,
+  isChatOpen,
+  openChat,
+  closeChat,
+  chatInputRef,
+  activeTab,
+  setActiveTab,
+  handleFixtureAction,
+}: InnerProps) => {
+  const { state: agentState, setState } = useCoAgent<RecipeState>({
+    name: "recipe_agent",
+    initialState: uploadedState,
+  });
+  // agentState starts as {} before any backend run — use uploadedState as base
+  // and overlay agentState mutations. Once backend sets recipe, use agentState as
+  // the sole source.
+  const state: RecipeState =
+    agentState?.recipe != null
+      ? agentState
+      : { ...uploadedState, ...(agentState ?? {}) };
+
+  const { appendMessage } = useCopilotChat();
+
+  const [toast, setToast] = useState<ToastConfig | null>(null);
+
+  // useCoAgent initialState is not sent to the backend until onRunInitialized
+  // fires — too late for the first request. Push uploadedState into agent.state
+  // on mount so the first message always carries the full recipe context.
+  const seededRef = useRef(false);
+  useEffect(() => {
+    if (!seededRef.current && uploadedState.recipe != null) {
+      seededRef.current = true;
+      setState(uploadedState);
+    }
+  }, [setState, uploadedState]);
+
+  const userMutationRef = useRef(false);
+
+  const prevAgentStateRef = useRef<RecipeState | null>(null);
+  useEffect(() => {
+    const prev = prevAgentStateRef.current;
+    prevAgentStateRef.current = agentState ?? null;
+    if (userMutationRef.current) {
+      userMutationRef.current = false;
+      return;
+    }
+    if (!prev || !agentState) return;
+    // Guard against false positives when agentState first populates from initialState.
+    if (
+      prev.current_step !== undefined &&
+      (agentState.current_step !== prev.current_step ||
+        agentState.cooking_started !== prev.cooking_started)
+    ) {
+      setActiveTab("steps");
+    } else if (
+      prev.recipe?.ingredients !== undefined &&
+      (JSON.stringify(agentState.recipe?.ingredients) !==
+        JSON.stringify(prev.recipe?.ingredients) ||
+        agentState.recipe?.servings !== prev.recipe?.servings)
+    ) {
+      setActiveTab("ingredients");
+    }
+  }, [agentState, setActiveTab]);
+
+  const handleToggleIngredient = (name: string): void => {
+    setState((prev: RecipeState | undefined) => ({
+      ...(prev ?? INITIAL_STATE),
+      checked_ingredients: toggleCheckedIngredient(
+        (prev ?? INITIAL_STATE).checked_ingredients ?? [],
+        name,
+      ),
+    }));
+  };
+
+  const handleSetCurrentStep = (index: number): void => {
+    userMutationRef.current = true;
+    setState((prev: RecipeState | undefined) => ({
+      ...(prev ?? INITIAL_STATE),
+      current_step: index,
+    }));
+  };
+
+  const handleSubstitute = (name: string): void => {
+    void appendMessage(
+      new TextMessage({ role: MessageRole.User, content: `Substitute ${name}` }),
+    );
+    openChat();
+    chatInputRef.current?.focus();
+  };
+
+  const handleFixture = (): void => {
+    handleFixtureAction();
+  };
+
+  const resetRecipe = (): void => {
+    setToast(null);
+    resetRecipeOuter();
+  };
+
+  return (
+    <Ctx.Provider
+      value={{
+        state,
+        isLoading,
+        error,
+        handleUpload,
+        handleFixture,
+        handleToggleIngredient,
+        handleSetCurrentStep,
+        handleSubstitute,
+        toast,
+        setToast,
+        resetUpload,
+        resetRecipe,
+        isChatOpen,
+        openChat,
+        closeChat,
+        chatInputRef,
+        activeTab,
+        setActiveTab,
+      }}
+    >
+      {children}
+    </Ctx.Provider>
+  );
 };
 
-const Ctx = createContext<RecipeContextValue | null>(null);
+// ── Outer component — manages upload state + threadId ─────────────────────────
 
 export const RecipeProvider = ({ children }: PropsWithChildren) => {
-  const [state, setState] = useState<RecipeState>(INITIAL_STATE);
+  const [uploadedState, setUploadedState] = useState<RecipeState>(INITIAL_STATE);
+  const [threadId, setThreadId] = useState<string | undefined>(undefined);
+  const [uploadId, setUploadId] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [isChatLoading, setIsChatLoading] = useState(false);
-  const [toast, setToast] = useState<ToastConfig | null>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("ingredients");
   const chatInputRef = useRef<HTMLTextAreaElement | null>(null);
-  const threadId = useRef(crypto.randomUUID());
-  const lastUserMessageRef = useRef<string | null>(null);
-  const isStreamingRef = useRef(false);
-
-  const endStream = () => {
-    isStreamingRef.current = false;
-    setIsChatLoading(false);
-  };
 
   const handleUpload = async (file: File): Promise<void> => {
     if (isLoading) return;
 
     const ext = `.${file.name.split(".").pop()?.toLowerCase() ?? ""}`;
     if (!ALLOWED_EXTENSIONS.includes(ext)) {
-      setError(
-        "Unsupported file type. Please upload a PDF or plain text file.",
-      );
+      setError("Unsupported file type. Please upload a PDF or plain text file.");
       return;
     }
 
@@ -116,11 +228,10 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
         } | null;
         throw new Error(json?.detail ?? `Upload failed (${res.status})`);
       }
-      const json = (await res.json()) as { state: RecipeState };
-      setState(json.state);
-      if (json.state.recipe) {
-        setMessages(buildInitialMessages(json.state.recipe));
-      }
+      const json = (await res.json()) as UploadResponse;
+      setUploadedState(json.state);
+      setThreadId(json.threadId);
+      setUploadId((prev) => prev + 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -128,213 +239,41 @@ export const RecipeProvider = ({ children }: PropsWithChildren) => {
     }
   };
 
-  const handleFixture = () => {
-    setState(recipeContextFixture);
-    if (recipeContextFixture.recipe) {
-      setMessages(buildInitialMessages(recipeContextFixture.recipe));
-    }
-  };
-
-  const handleToggleIngredient = (name: string) => {
-    setState((prev) => ({
-      ...prev,
-      checked_ingredients: toggleCheckedIngredient(
-        prev.checked_ingredients ?? [],
-        name,
-      ),
-    }));
-  };
-
-  const handleSetCurrentStep = (index: number) => {
-    setState((prev) => ({ ...prev, current_step: index }));
-  };
-
-  const openChat = () => setIsChatOpen(true);
-  const closeChat = () => setIsChatOpen(false);
-
-  const handleSubstitute = (name: string) => {
-    sendMessage(`Substitute ${name}`);
-    setIsChatOpen(true);
-    chatInputRef.current?.focus();
-  };
-
-  const streamResponse = (outgoing: ChatMessage[]): void => {
-    void (async () => {
-      try {
-        const body: RunAgentInput = {
-          threadId: threadId.current,
-          runId: crypto.randomUUID(),
-          state,
-          messages: outgoing as RunAgentInput["messages"],
-          tools: [],
-          context: [],
-          forwardedProps: {},
-        };
-
-        const res = await fetch(`${API_BASE}/copilotkit/`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-
-        if (!res.body) {
-          endStream();
-          return;
-        }
-
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-        let assistantMsgId: string | null = null;
-        let pendingTab: string | null = null;
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() ?? "";
-
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
-            let event: AGUIEvent;
-            try {
-              event = JSON.parse(line.slice(6)) as AGUIEvent;
-            } catch {
-              continue;
-            }
-
-            if (event.type === EventType.TOOL_CALL_START) {
-              pendingTab = TOOL_TAB_MAP[event.toolCallName] ?? null;
-            } else if (event.type === EventType.TEXT_MESSAGE_START) {
-              assistantMsgId = event.messageId;
-              const id = event.messageId;
-              setMessages((prev) => [
-                ...prev,
-                { id, role: "assistant", content: "" },
-              ]);
-            } else if (
-              event.type === EventType.TEXT_MESSAGE_CONTENT &&
-              assistantMsgId
-            ) {
-              const { delta, messageId } = event;
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === messageId ? { ...m, content: m.content + delta } : m,
-                ),
-              );
-            } else if (event.type === EventType.STATE_SNAPSHOT) {
-              // snapshot is typed `any` in ag-ui - it is schema-agnostic by design
-              const newState = event.snapshot as RecipeState;
-              setState(newState);
-              if (pendingTab) { setActiveTab(pendingTab); pendingTab = null; }
-              if (newState.recipe) {
-                setMessages((prev) =>
-                  prev.map((m) =>
-                    m.hidden
-                      ? { ...m, content: `Recipe context: ${JSON.stringify(newState.recipe)}` }
-                      : m,
-                  ),
-                );
-              }
-            } else if (event.type === EventType.RUN_FINISHED) {
-              endStream();
-            }
-          }
-        }
-        // Stream closed without RUN_FINISHED — clear loading state
-        endStream();
-      } catch {
-        endStream();
-        setMessages((prev) => {
-          const lastUserIdx = prev.findLastIndex((m) => m.role === "user");
-          if (lastUserIdx === -1) return prev;
-          return prev.map((m, i) =>
-            i === lastUserIdx ? { ...m, failed: true } : m,
-          );
-        });
-        setToast({
-          message: "Connection lost. Please check your network and try again.",
-          showRetry: true,
-        });
-      }
-    })();
-  };
-
-  const sendMessage = (content: string): void => {
-    if (isStreamingRef.current) return;
-    const userMsg: ChatMessage = {
-      id: crypto.randomUUID(),
-      role: "user",
-      content,
-    };
-    const outgoing = [...messages, userMsg];
-    lastUserMessageRef.current = content;
-    setMessages(outgoing);
-    isStreamingRef.current = true;
-    setIsChatLoading(true);
-    streamResponse(outgoing);
-  };
-
-  const retryLastMessage = (): void => {
-    if (!lastUserMessageRef.current || isStreamingRef.current) return;
-    const lastUserIdx = messages.findLastIndex((m) => m.role === "user");
-    const base = lastUserIdx >= 0 ? messages.slice(0, lastUserIdx) : messages;
-    const userMsg: ChatMessage = {
-      id: crypto.randomUUID(),
-      role: "user",
-      content: lastUserMessageRef.current,
-    };
-    const outgoing = [...base, userMsg];
-    setMessages(outgoing);
-    isStreamingRef.current = true;
-    setIsChatLoading(true);
-    streamResponse(outgoing);
-  };
-
-  const resetUpload = (): void => {
-    setError(null);
+  const handleFixtureAction = (): void => {
+    setUploadedState(recipeContextFixture);
+    setUploadId((prev) => prev + 1);
   };
 
   const resetRecipe = (): void => {
-    setState(INITIAL_STATE);
-    setMessages([]);
+    setUploadedState(INITIAL_STATE);
+    setThreadId(undefined);
+    setUploadId((prev) => prev + 1);
     setError(null);
-    setToast(null);
     setIsChatOpen(false);
     setActiveTab("ingredients");
   };
 
   return (
-    <Ctx.Provider
-      value={{
-        state,
-        isLoading,
-        error,
-        handleUpload,
-        handleFixture,
-        handleToggleIngredient,
-        handleSetCurrentStep,
-        handleSubstitute,
-        messages,
-        isChatLoading,
-        sendMessage,
-        toast,
-        setToast,
-        resetUpload,
-        resetRecipe,
-        retryLastMessage,
-        isChatOpen,
-        openChat,
-        closeChat,
-        chatInputRef,
-        activeTab,
-        setActiveTab,
-      }}
-    >
-      {children}
-    </Ctx.Provider>
+    <CopilotKitProvider threadId={threadId}>
+      <RecipeStateInner
+        key={uploadId}
+        uploadedState={uploadedState}
+        isLoading={isLoading}
+        error={error}
+        handleUpload={handleUpload}
+        resetUpload={() => setError(null)}
+        resetRecipeOuter={resetRecipe}
+        isChatOpen={isChatOpen}
+        openChat={() => setIsChatOpen(true)}
+        closeChat={() => setIsChatOpen(false)}
+        chatInputRef={chatInputRef}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        handleFixtureAction={handleFixtureAction}
+      >
+        {children}
+      </RecipeStateInner>
+    </CopilotKitProvider>
   );
 };
 

@@ -14,14 +14,24 @@ type IngredientRowProps = {
   delay: number;
 };
 
-const IngredientRow = ({ ingredient, isChecked, onToggle, onSubstitute, delay }: IngredientRowProps) => {
+const IngredientRow = ({
+  ingredient,
+  isChecked,
+  onToggle,
+  onSubstitute,
+  delay,
+}: IngredientRowProps) => {
   const { name } = ingredient;
   const qty = formatIngredientQuantity(ingredient);
   const [spinning, setSpinning] = useState(false);
   return (
-    <AnimatedNode as="li" delay={delay} className="flex min-h-[50px] items-center">
+    <AnimatedNode
+      as="li"
+      delay={delay}
+      className="flex gap-2 min-h-[50px] items-center px-6 py-4 bg-stone-50"
+    >
       <button
-        className="flex min-h-[50px] flex-1 items-center gap-4 px-6 py-2"
+        className="flex min-h-[50px] flex-1 items-center gap-4"
         onClick={() => onToggle(name)}
         aria-label={`${isChecked ? "Uncheck" : "Check"} ${name}`}
         aria-pressed={isChecked}
@@ -44,6 +54,7 @@ const IngredientRow = ({ ingredient, isChecked, onToggle, onSubstitute, delay }:
             strokeWidth={3}
           />
         </span>
+
         <span
           className={[
             "flex flex-1 flex-wrap items-baseline gap-x-2 text-left",
@@ -58,9 +69,11 @@ const IngredientRow = ({ ingredient, isChecked, onToggle, onSubstitute, delay }:
       </button>
       {onSubstitute && (
         <button
-          className="mr-2 flex min-h-[50px] min-w-[50px] items-center justify-center rounded-full border border-accent-300 text-accent-600"
+          className="flex min-h-[50px] min-w-[50px] items-center justify-center rounded-full border border-accent-300 text-accent-600"
           onClick={() => {
-            if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            if (
+              !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            ) {
               setSpinning(true);
             }
             onSubstitute(name);

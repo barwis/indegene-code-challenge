@@ -1,9 +1,12 @@
 import { renderHook, act } from "@testing-library/react";
 import { vi, beforeEach } from "vitest";
+import { useState } from "react";
 import { RecipeProvider, useRecipeContext } from "./recipe-context";
 import type { components } from "@/types/api";
 
 type RecipeContext = components["schemas"]["RecipeContext"];
+
+const INITIAL_STATE: RecipeContext = { current_step: 0, cooking_started: false };
 
 const withRecipeState: RecipeContext = {
   current_step: 0,
@@ -17,16 +20,35 @@ const withRecipeState: RecipeContext = {
   },
 };
 
+const mockAppendMessage = vi.fn();
+
+vi.mock("@copilotkit/react-core", () => ({
+  CopilotKit: ({ children }: { children: React.ReactNode }) => children,
+  useCoAgent: ({ initialState }: { name: string; initialState?: RecipeContext }) => {
+    const [state, setState] = useState<RecipeContext>(initialState ?? INITIAL_STATE);
+    return { state, setState, running: false, nodeName: null, threadId: null };
+  },
+  useCopilotChat: () => ({
+    appendMessage: mockAppendMessage,
+    isLoading: false,
+  }),
+}));
+
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <RecipeProvider>{children}</RecipeProvider>
 );
 
 beforeEach(() => {
+  mockAppendMessage.mockClear();
   vi.stubGlobal(
     "fetch",
     vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ state: withRecipeState }),
+      json: async () => ({
+        state: withRecipeState,
+        threadId: "test-thread-id",
+        runId: "test-run-id",
+      }),
     } as Response),
   );
 });
@@ -38,12 +60,6 @@ describe("RecipeProvider / useRecipeContext", () => {
       expect(result.current.state.recipe).toBeUndefined();
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toBeNull();
-    });
-
-    it("should return empty messages and isChatLoading false", () => {
-      const { result } = renderHook(() => useRecipeContext(), { wrapper });
-      expect(result.current.messages).toEqual([]);
-      expect(result.current.isChatLoading).toBe(false);
     });
   });
 
@@ -85,7 +101,11 @@ describe("RecipeProvider / useRecipeContext", () => {
           } as Response)
           .mockResolvedValueOnce({
             ok: true,
-            json: async () => ({ state: withRecipeState }),
+            json: async () => ({
+              state: withRecipeState,
+              threadId: "test-thread-id",
+              runId: "test-run-id",
+            }),
           } as Response),
       );
       const { result } = renderHook(() => useRecipeContext(), { wrapper });
@@ -225,12 +245,14 @@ describe("RecipeProvider / useRecipeContext", () => {
   });
 
   describe("handleSubstitute", () => {
-    it("should send a user message with 'Substitute [name]'", () => {
+    it("should call appendMessage with 'Substitute [name]'", () => {
       const { result } = renderHook(() => useRecipeContext(), { wrapper });
       act(() => {
         result.current.handleSubstitute("garlic");
       });
-      expect(result.current.messages.some((m) => m.role === "user" && m.content === "Substitute garlic")).toBe(true);
+      expect(mockAppendMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ role: "user", content: "Substitute garlic" }),
+      );
     });
 
     it("should set isChatOpen to true", () => {

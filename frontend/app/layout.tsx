@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { PropsWithChildren } from "react";
 import { Lora, Nunito } from "next/font/google";
+import "@copilotkit/react-ui/styles.css";
 import "./globals.css";
 
 const lora = Lora({

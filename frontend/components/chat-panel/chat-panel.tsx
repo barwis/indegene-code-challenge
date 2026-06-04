@@ -1,41 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
+import { CopilotChat } from "@copilotkit/react-ui";
+import type { ErrorMessageProps } from "@copilotkit/react-ui";
 import { useRecipeContext } from "@context/recipe-context";
-import { useVoiceInput } from "./use-voice-input";
-import { ChatMessageList } from "./chat-message-list";
-import { ChatInput } from "./chat-input";
+import { CopilotChatInput } from "./copilot-chat-input";
 
-const ChatPanel = () => {
-  const { messages, isChatLoading, sendMessage, setToast } = useRecipeContext();
-  const [inputValue, setInputValue] = useState("");
+const INITIAL_LABEL =
+  'Your recipe is ready! Ask me anything - scaling, substitutions, or just say "let\'s start cooking" when you\'re ready.';
 
-  const { isSupported, isListening, startListening, stopListening } =
-    useVoiceInput({
-      onTranscript: (text) => setInputValue(text),
-      onError: (message) => setToast({ message }),
-    });
-
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
-    sendMessage(inputValue);
-    setInputValue("");
-  };
-
-  return (
-    <div className="flex h-full flex-col">
-      <ChatMessageList messages={messages ?? []} isLoading={isChatLoading} />
-      <ChatInput
-        value={inputValue}
-        onChange={setInputValue}
-        onSend={handleSend}
-        disabled={isChatLoading}
-        isMicSupported={isSupported}
-        isListening={isListening}
-        onMicClick={isListening ? stopListening : startListening}
-      />
-    </div>
-  );
+const ChatErrorMessage = ({ error }: ErrorMessageProps) => {
+  const { setToast } = useRecipeContext();
+  useEffect(() => {
+    setToast({ message: error.message || "Connection error. Please try again." });
+  }, [error, setToast]);
+  return null;
 };
+
+const ChatPanel = () => (
+  <CopilotChat
+    className="copilot-chat-panel"
+    labels={{ initial: INITIAL_LABEL }}
+    Input={CopilotChatInput}
+    ErrorMessage={ChatErrorMessage}
+  />
+);
 
 export { ChatPanel };
