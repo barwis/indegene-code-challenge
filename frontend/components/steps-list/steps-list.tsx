@@ -1,7 +1,9 @@
 import { useRecipeContext } from "@context/recipe-context";
+import { useScrollToTop } from "@hooks/use-scroll-to-top";
 import { StepRow } from "./step-row";
 
 const StepsList = () => {
+  const sectionRef = useScrollToTop<HTMLElement>();
   const { state, handleSetCurrentStep } = useRecipeContext();
   const { recipe, current_step } = state;
 
@@ -10,7 +12,7 @@ const StepsList = () => {
   const { steps } = recipe;
 
   return (
-    <section className="flex flex-col gap-4 py-4">
+    <section ref={sectionRef} className="flex flex-col gap-4 py-4">
       <h2 className="flex items-baseline gap-2 px-6 font-heading text-lg font-semibold text-stone-700">
         Steps
         <span className="font-body text-sm font-normal text-stone-400">

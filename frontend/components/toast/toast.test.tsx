@@ -6,12 +6,10 @@ import { Toast } from "./toast";
 vi.mock("@context/recipe-context");
 
 const mockSetToast = vi.fn();
-const mockRetryLastMessage = vi.fn();
 
 describe("Toast", () => {
   beforeEach(() => {
     mockSetToast.mockReset();
-    mockRetryLastMessage.mockReset();
     vi.useFakeTimers();
   });
 
@@ -57,48 +55,13 @@ describe("Toast", () => {
       expect(mockSetToast).toHaveBeenCalledWith(null);
     });
 
-    it("should not show a retry button when showRetry is not set", () => {
+    it("should not show a retry button", () => {
       mockUseRecipeContext({
         toast: { message: "Something went wrong." },
         setToast: mockSetToast,
       });
       render(<Toast />);
       expect(screen.queryByRole("button", { name: /retry/i })).not.toBeInTheDocument();
-    });
-  });
-
-  describe("when toast has showRetry", () => {
-    it("should show a retry button", () => {
-      mockUseRecipeContext({
-        toast: { message: "Connection lost.", showRetry: true },
-        setToast: mockSetToast,
-        retryLastMessage: mockRetryLastMessage,
-      });
-      render(<Toast />);
-      expect(screen.getByRole("button", { name: /retry/i })).toBeInTheDocument();
-    });
-
-    it("should not auto-dismiss when showRetry is true", () => {
-      mockUseRecipeContext({
-        toast: { message: "Connection lost.", showRetry: true },
-        setToast: mockSetToast,
-        retryLastMessage: mockRetryLastMessage,
-      });
-      render(<Toast />);
-      act(() => vi.advanceTimersByTime(4000));
-      expect(mockSetToast).not.toHaveBeenCalled();
-    });
-
-    it("should dismiss and call retryLastMessage when retry is clicked", () => {
-      mockUseRecipeContext({
-        toast: { message: "Connection lost.", showRetry: true },
-        setToast: mockSetToast,
-        retryLastMessage: mockRetryLastMessage,
-      });
-      render(<Toast />);
-      fireEvent.click(screen.getByRole("button", { name: /retry/i }));
-      expect(mockSetToast).toHaveBeenCalledWith(null);
-      expect(mockRetryLastMessage).toHaveBeenCalledOnce();
     });
   });
 });

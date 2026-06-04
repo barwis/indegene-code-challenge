@@ -1,8 +1,10 @@
 import { useRecipeContext } from "@context/recipe-context";
+import { useScrollToTop } from "@hooks/use-scroll-to-top";
 import { groupIngredientsByCategory } from "@domain/ingredients";
 import { IngredientRow } from "./ingredient-row";
 
 const IngredientsList = () => {
+  const sectionRef = useScrollToTop<HTMLElement>();
   const { state, handleToggleIngredient, handleSubstitute } =
     useRecipeContext();
   const { recipe, checked_ingredients } = state;
@@ -28,7 +30,7 @@ const IngredientsList = () => {
   }));
 
   return (
-    <section className="py-4">
+    <section ref={sectionRef} className="py-4">
       <h2 className="flex items-baseline gap-2 px-6 pb-2 font-heading text-lg font-semibold text-stone-700">
         Ingredients
         <span className="font-body text-sm font-normal text-stone-400">
@@ -42,7 +44,7 @@ const IngredientsList = () => {
               {category}
             </h3>
           )}
-          <ul className="divide-y divide-stone-200">
+          <ul className=" divide-y divide-stone-200 rounded-lg overflow-hidden">
             {items.map((ingredient, index) => (
               <IngredientRow
                 key={`${category || "all"}-${index}`}

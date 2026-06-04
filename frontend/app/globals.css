@@ -1,4 +1,40 @@
 @import "tailwindcss";
+
+/* ── CopilotKit theme ─────────────────────────────────────────────────────── */
+/* prettier-ignore */
+:root {
+  
+  --copilot-kit-primary-color:           var(--color-accent-500); /* button fill + some border/text */
+  --copilot-kit-contrast-color:           #fff;                    /* icon colour ON the button */
+  --copilot-kit-secondary-contrast-color: var(--color-accent-900); /* message body text */
+  --copilot-kit-muted-color:              var(--color-accent-400); /* placeholders / timestamps */
+  --copilot-kit-background-color:         var(--bg-white);  /* panel bg */
+  --copilot-kit-input-background-color:   var(--color-accent-50);
+  --copilot-kit-secondary-color:          var(--color-accent-100); /* message bubble bg */
+  --copilot-kit-separator-color:          var(--color-accent-200); /* divider lines */
+}
+
+/* Fill the flex-column parent so input stays pinned to the bottom */
+.copilotKitChat {
+  flex: 1 1 0%;
+  min-height: 0;
+  font-family: var(--font-body);
+  font-size: 1rem;
+}
+
+.copilotKitChatBody {
+  min-height: 0;
+}
+
+/* Remove the "Powered by CopilotKit" footer */
+.copilotKitBranding {
+  display: none;
+}
+
+.copilotKitMessage.copilotKitAssistantMessage .copilotKitMessageControls {
+  position: static;
+}
+
 @plugin "tailwindcss-animate";
 @plugin "@tailwindcss/typography";
 
@@ -8,6 +44,10 @@
 }
 
 @theme {
+  --font-heading: "Lora", Georgia, serif;
+  --font-body: "Nunito", system-ui, sans-serif;
+  --default-font-family: var(--font-body);
+
   --color-accent-50: oklch(0.955 0 0); /* canvas */
   --color-accent-100: oklch(0.94 0.025 41.5);
   --color-accent-200: oklch(0.88 0.045 41.5);
@@ -18,10 +58,6 @@
   --color-accent-700: oklch(0.379 0.09 41.5);
   --color-accent-800: oklch(0.294 0.07 41.5);
   --color-accent-900: oklch(0.209 0.05 41.5);
-
-  --font-heading: "Lora", Georgia, serif;
-  --font-body: "Nunito", system-ui, sans-serif;
-  --default-font-family: var(--font-body);
 
   --ease-stagger: cubic-bezier(0.2, 0.6, 0.35, 1);
   --animate-slide-left: slide-left 280ms var(--ease-stagger) both;
@@ -72,7 +108,11 @@
   }
 
   @keyframes spin-once {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 }

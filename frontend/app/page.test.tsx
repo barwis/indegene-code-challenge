@@ -8,6 +8,10 @@ vi.mock("@context/recipe-context", () => ({
   useRecipeContext: vi.fn(),
 }));
 
+vi.mock("@copilotkit/react-ui", () => ({
+  CopilotChat: () => <div data-testid="copilot-chat" />,
+}));
+
 describe("Home", () => {
   describe("upload view", () => {
     it("should render without crashing", () => {
