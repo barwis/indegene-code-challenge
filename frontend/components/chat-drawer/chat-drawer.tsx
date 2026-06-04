@@ -1,45 +1,48 @@
 "use client";
 
-import { MessageCircle, X } from "lucide-react";
+import { X } from "lucide-react";
 import { ChatPanel } from "@components";
 import { useRecipeContext } from "@context/recipe-context";
+import { useDrawerDrag } from "./use-drawer-drag";
 
 const ChatDrawer = () => {
   const { isChatOpen, openChat, closeChat } = useRecipeContext();
+  const {
+    drawerRef,
+    isDragging,
+    drawerStyle,
+    onPointerDown,
+    onPointerMove,
+    onPointerUp,
+    onPointerCancel,
+  } = useDrawerDrag({ isOpen: isChatOpen, onOpen: openChat, onClose: closeChat });
 
   return (
     <div className="md:hidden">
-      <button
-        onClick={openChat}
-        aria-label="Ask assistant"
-        className={[
-          "fixed bottom-6 right-6 z-40 flex min-h-[50px] min-w-[50px] items-center gap-2 rounded-full",
-          "bg-accent-500 px-5 text-white shadow-lg",
-          "transition-[opacity,transform] duration-200",
-          isChatOpen ? "pointer-events-none scale-75 opacity-0" : "scale-100 opacity-100",
-        ].join(" ")}
-      >
-        <MessageCircle size={20} />
-        <span className="text-sm font-medium">Ask assistant</span>
-      </button>
-
       <div
+        ref={drawerRef}
         role="dialog"
-        aria-modal="true"
+        aria-modal={isChatOpen ? "true" : "false"}
         aria-label="Cooking assistant"
-        className={[
-          "fixed bottom-0 left-0 right-0 z-50 flex h-[50vh] flex-col rounded-t-2xl bg-stone-100 shadow-2xl",
-          "transition-transform duration-300 ease-stagger",
-          isChatOpen ? "translate-y-0" : "translate-y-full",
-        ].join(" ")}
+        style={drawerStyle}
+        className="fixed bottom-0 left-0 right-0 z-50 flex h-[50vh] flex-col rounded-t-2xl bg-stone-100 shadow-2xl"
       >
-        <button
-          onClick={closeChat}
-          aria-label="Close assistant"
-          className="flex w-full items-center justify-center pb-2 pt-3"
+        <div
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerCancel}
+          role="button"
+          tabIndex={0}
+          data-testid="drawer-handle"
+          aria-label={isChatOpen ? "Close assistant" : "Open assistant"}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") isChatOpen ? closeChat() : openChat();
+          }}
+          className={`flex w-full select-none touch-none items-center justify-center rounded-t-2xl bg-accent-500 pb-2 pt-3 shadow-[0_-4px_16px_rgba(0,0,0,0.15)] ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
         >
-          <span className="h-1 w-10 rounded-full bg-stone-300" />
-        </button>
+          <span className="h-1 w-10 rounded-full bg-accent-300" />
+        </div>
 
         <div className="flex items-center justify-between border-b border-stone-200 px-4 pb-3">
           <span className="font-body text-sm font-semibold text-stone-700">
@@ -47,6 +50,7 @@ const ChatDrawer = () => {
           </span>
           <button
             onClick={closeChat}
+            data-testid="drawer-close"
             aria-label="Close assistant"
             className="flex h-8 w-8 items-center justify-center rounded-full text-stone-500 hover:bg-stone-200"
           >
